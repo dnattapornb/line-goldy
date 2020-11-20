@@ -23,7 +23,7 @@ class DefaultController extends Controller
         dump($s1, $s2, $s3);
         $a = Storage::disk('local');
         $b = Storage::disk('public');
-        dd($a->files(), $b);
+        dump($a->files(), $b);
 
         $now = Carbon::now();
         $url = null;
