@@ -11,6 +11,12 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     // return view('welcome');
+// });
+
+Route::get('/', 'DefaultController@index')->name('default.index');
+Route::get('/sheet', 'DefaultController@sheet')->name('default.sheet');
+Route::get('/collection', 'DefaultController@collection')->name('default.collection');
+
+Route::post('/bot', 'LineBotController@index')->name('line.bot.index');
