@@ -2,3 +2,6 @@
 !public/
 !.gitignore
 !line-members.yaml
+!configs/
+!configs/*
+!configs/line-groups.yaml

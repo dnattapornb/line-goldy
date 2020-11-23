@@ -47,17 +47,55 @@ class LineBotController extends Controller
                 $userId = $event->getUserId();
                 $user = [
                     'id'          => $userId,
+                    'name'        => null,
                     'displayName' => null,
                     'pictureUrl'  => null,
                 ];
 
                 // User
-                $userProfile = $bot->getProfile($userId);
-                Log::info('LINE_BOT.User => ', $userProfile->getJSONDecodedBody());
-                if ($userProfile->isSucceeded()) {
-                    $data = $userProfile->getJSONDecodedBody();
-                    $user['displayName'] = $data['displayName'] ?? null;
-                    $user['pictureUrl'] = $data['pictureUrl'] ?? null;
+                $store = true;
+                if (isset($userId) && !empty($userId) && $store) {
+                    $userProfile = $bot->getProfile($userId);
+                    Log::info('LINE_BOT.User => ', $userProfile->getJSONDecodedBody());
+                    if ($userProfile->isSucceeded()) {
+                        $data = $userProfile->getJSONDecodedBody();
+                        $user['displayName'] = $data['displayName'] ?? null;
+                        $user['pictureUrl'] = $data['pictureUrl'] ?? null;
+                    }
+
+                    $path = 'configs\line-users.yaml';
+                    $exists = Storage::disk('local')->exists($path);
+                    $users = [];
+                    if ($exists) {
+                        $users = Yaml::parse(Storage::disk('local')->get($path));
+                    }
+
+                    if (isset($users) && !empty($users) && $this->hasUser($users, $userId)) {
+                        foreach ($users as &$_user) {
+                            if ($_user['id'] === $userId) {
+                                $rs = array_diff($user, $_user);
+                                if (!empty($rs)) {
+                                    if (isset($rs['displayName'])) {
+                                        if (!empty($rs['displayName'])) {
+                                            $_user['displayName'] = $user['displayName'];
+                                        }
+                                    }
+
+                                    if (isset($rs['pictureUrl'])) {
+                                        if (!empty($rs['pictureUrl'])) {
+                                            $_user['pictureUrl'] = $user['pictureUrl'];
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        array_push($users, $user);
+                    }
+
+                    Storage::disk('local')->put($path, Yaml::dump($users));
                 }
 
                 // Group
@@ -70,56 +108,6 @@ class LineBotController extends Controller
                     ];
                     // $groupMemberIds = $bot->getGroupMemberIds($groupId);
                     // Log::info('LINE_BOT.Group => ', $groupMemberIds->getJSONDecodedBody());
-
-                    // Store, Group > User.
-                    $store = true;
-                    if (isset($userId) && !empty($userId) && $store) {
-                        $path = 'line-members.yaml';
-                        $exists = Storage::disk('local')->exists($path);
-                        $lineMembersArray = [
-                            'groups' => [],
-                        ];
-                        if ($exists) {
-                            $lineMembersArray = Yaml::parse(Storage::disk('local')->get($path));
-                        }
-                        if (isset($lineMembersArray['groups']) && !empty($lineMembersArray['groups']) && $this->hasGroup($lineMembersArray['groups'], $groupId)) {
-                            foreach ($lineMembersArray['groups'] as &$group) {
-                                if ($group['id'] === $groupId) {
-                                    if (isset($group['users']) && !empty($group['users']) && $this->hasUser($group['users'], $userId)) {
-                                        foreach ($group['users'] as &$_user) {
-                                            if ($_user['id'] === $userId) {
-                                                $rs = array_diff($user, $_user);
-                                                if (!empty($rs)) {
-                                                    if (isset($rs['displayName'])) {
-                                                        if (!empty($rs['displayName'])) {
-                                                            $_user['displayName'] = $user['displayName'];
-                                                        }
-                                                    }
-
-                                                    if (isset($rs['pictureUrl'])) {
-                                                        if (!empty($rs['pictureUrl'])) {
-                                                            $_user['pictureUrl'] = $user['pictureUrl'];
-                                                        }
-                                                    }
-                                                }
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        array_push($group['users'], $user);
-                                    }
-                                }
-                            }
-                        }
-                        else {
-                            array_push($group['users'], $user);
-                            array_push($lineMembersArray['groups'], $group);
-                        }
-
-                        $lineMembersYaml = Yaml::dump($lineMembersArray, 1, 2);
-                        Storage::disk('local')->put($path, $lineMembersYaml);
-                    }
                 }
 
                 $active = true;
@@ -278,19 +266,6 @@ class LineBotController extends Controller
         return response('It works!');
     }
 
-    private function hasGroup($groups, $groupId)
-    {
-        $has = false;
-        foreach ($groups as $group) {
-            if ($group['id'] == $groupId) {
-                $has = true;
-                break;
-            }
-        }
-
-        return $has;
-    }
-
     private function hasUser($users, $userId)
     {
         $has = false;
@@ -349,7 +324,7 @@ class LineBotController extends Controller
             $textss .= implode("\n", $b);
             $textss .= "\n";
         }
-        
+
         return $textss;
     }
 }
