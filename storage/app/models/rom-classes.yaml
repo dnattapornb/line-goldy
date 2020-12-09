@@ -1,0 +1,91 @@
+-
+  id: 1
+  name: Swordsman
+  jobs:
+    -
+      id: 1
+      name: Runemaster
+    -
+      id: 2
+      name: Divine Avenger
+-
+  id: 2
+  name: Mage
+  jobs:
+    -
+      id: 1
+      name: Arcane Master
+    -
+      id: 2
+      name: Chronomancer
+-
+  id: 3
+  name: Thief
+  jobs:
+    -
+      id: 1
+      name: Blade Soul
+    -
+      id: 2
+      name: Phantom Dancer
+-
+  id: 4
+  name: Archer
+  jobs:
+    -
+      id: 1
+      name: Stellar Hunter
+    -
+      id: 2
+      name: Solar Trouvere
+    -
+      id: 3
+      name: Luna Danseuse
+-
+  id: 5
+  name: Acolyte
+  jobs:
+    -
+      id: 1
+      name: Saint
+    -
+      id: 2
+      name: Dragon Fist
+-
+  id: 6
+  name: Merchant
+  jobs:
+    -
+      id: 1
+      name: Lightbringer
+    -
+      id: 2
+      name: Begetter
+-
+  id: 7
+  name: Advanced Novice
+  jobs:
+    -
+      id: 1
+      name: Novice Guardian
+-
+  id: 8
+  name: Witch
+  jobs:
+    -
+      id: 1
+      name: Spirit Whisperer
+-
+  id: 9
+  name: Flames
+  jobs:
+    -
+      id: 1
+      name: Inferno Armor
+-
+  id: 10
+  name: Savior
+  jobs:
+    -
+      id: 1
+      name: Dragon King
