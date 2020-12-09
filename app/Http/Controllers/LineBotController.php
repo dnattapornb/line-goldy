@@ -50,6 +50,8 @@ class LineBotController extends Controller
                     'name'        => null,
                     'displayName' => null,
                     'pictureUrl'  => null,
+                    'active'      => true,
+                    'friend'      => false,
                 ];
 
                 // User
@@ -61,9 +63,10 @@ class LineBotController extends Controller
                         $data = $userProfile->getJSONDecodedBody();
                         $user['displayName'] = $data['displayName'] ?? null;
                         $user['pictureUrl'] = $data['pictureUrl'] ?? null;
+                        $user['friend'] = true;
                     }
 
-                    $path = 'configs\line-users.yaml';
+                    $path = 'models\line-users.yaml';
                     $exists = Storage::disk('local')->exists($path);
                     $users = [];
                     if ($exists) {
@@ -84,6 +87,12 @@ class LineBotController extends Controller
                                     if (isset($rs['pictureUrl'])) {
                                         if (!empty($rs['pictureUrl'])) {
                                             $_user['pictureUrl'] = $user['pictureUrl'];
+                                        }
+                                    }
+
+                                    if (isset($rs['friend'])) {
+                                        if (!empty($rs['friend'])) {
+                                            $_user['friend'] = $user['friend'];
                                         }
                                     }
                                 }

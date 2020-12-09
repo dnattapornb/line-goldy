@@ -1,29 +1,37 @@
-window._ = require('lodash');
+require('../bootstrap');
 
-try {
-    window.Popper = require('popper.js').default;
-    window.$ = window.jQuery = require('jquery');
-
-    require('bootstrap');
-} catch (e) {}
-
-window.axios = require('axios');
-
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.Vue = require('vue');
 
 import Vue from 'vue';
-import UserComponent from '../components/UserComponent';
+import Vuetify from '../plugins/vuetify';
+
+Vue.use(Vuetify);
+
+import VueAxios from 'vue-axios';
+import axios from 'axios';
+
+import UserTable from '../components/UserTable.vue';
 
 Vue.config.productionTip = false;
 
-import VueMaterial from 'vue-material';
-import 'vue-material/dist/vue-material.min.css';
-import 'vue-material/dist/theme/default.css';
+Vue.filter('capitalize', function (value) {
+    if (!value) {
+        return '';
+    }
+    value = value.toString();
+    return value.charAt(0).toUpperCase() + value.slice(1);
+});
 
-Vue.use(VueMaterial);
+Vue.filter('uppercase', function (value) {
+    if (!value) {
+        return '';
+    }
+    return value.toString().toUpperCase();
+});
 
 new Vue({
+    vuetify: Vuetify,
     el: '#app',
-    components: {UserComponent},
-    template: '<UserComponent/>',
+    components: {UserTable},
+    template: '<UserTable/>',
 });

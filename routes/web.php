@@ -11,12 +11,14 @@
 |
 */
 
-Route::get('/vue', function () {
-    return view('users/index');
-});
 
 Route::get('/', 'DefaultController@index')->name('default.index');
 Route::get('/sheet', 'DefaultController@sheet')->name('default.sheet');
 Route::get('/collection', 'DefaultController@collection')->name('default.collection');
+
+Route::get('/user', function () {
+    return view('user/index');
+});
+Route::get('/users', 'UserController@index')->name('users.index');
 
 Route::post('/bot', 'LineBotController@index')->name('line.bot.index');

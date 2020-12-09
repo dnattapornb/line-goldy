@@ -17,32 +17,13 @@ class DefaultController extends Controller
 {
     public function index()
     {
-        $path = 'line-members.yaml';
+        $path = 'models\line-users.yaml';
         $exists = Storage::disk('local')->exists($path);
-        $lineMembersArray = [
-            'groups' => [],
-        ];
+        $users = [];
         if ($exists) {
-            $lineMembersArray = Yaml::parse(Storage::disk('local')->get($path));
+            $users = Yaml::parse(Storage::disk('local')->get($path));
         }
-        dump($lineMembersArray);
-
-        $users = new Collection();
-        foreach ($lineMembersArray['groups'] as $group) {
-            foreach ($group['users'] as $user) {
-                $user = [
-                    'id'          => $user['id'],
-                    'name'        => null,
-                    'displayName' => $user['displayName'],
-                    'pictureUrl'  => $user['pictureUrl'],
-                ];
-                $users->add($user);
-            }
-        }
-        dump($users, $users->all(), $users->unique()->values()->toArray());
-
-        $path = 'configs\line-users.yaml';
-        Storage::disk('local')->put($path, Yaml::dump($users->unique()->values()->toArray()));
+        dump($users);
     }
 
     public function sheet()
@@ -68,7 +49,7 @@ class DefaultController extends Controller
     public function collection()
     {
         $tests = new Collection();
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             $test = [
                 'id'   => $i,
                 'name' => 'name'.$i,
@@ -76,7 +57,11 @@ class DefaultController extends Controller
             $tests->add($test);
         }
 
-        dd($tests);
+        dd($tests->toArray());
+        dd($tests->toJson());
         exit();
+
+        // return response($tests->toJson());
+        // return response()->json($tests->toArray());
     }
 }
