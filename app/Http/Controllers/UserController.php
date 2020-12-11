@@ -25,4 +25,25 @@ class UserController extends Controller
 
         return \response()->json($users);
     }
+
+    public function update(Request $request)
+    {
+        $path = 'models\line-users.yaml';
+        $exists = Storage::disk('local')->exists($path);
+        $users = [];
+        if ($exists) {
+            $users = Yaml::parse(Storage::disk('local')->get($path));
+            if ($request->exists('users')) {
+                $_users = $request->get('users');
+
+                try {
+                    Storage::disk('local')->put($path, Yaml::dump($_users));
+                    $users = $_users;
+                } catch (\Exception $e) {
+                }
+            }
+        }
+
+        return \response()->json($users);
+    }
 }

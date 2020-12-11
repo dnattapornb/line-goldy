@@ -20,5 +20,6 @@ Route::get('/user', function () {
     return view('user/index');
 });
 Route::get('/users', 'UserController@index')->name('users.index');
+Route::put('/users', 'UserController@update')->name('users.update');
 
 Route::post('/bot', 'LineBotController@index')->name('line.bot.index');

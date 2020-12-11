@@ -6,7 +6,7 @@
                 :search="search"
                 :options.sync="options"
                 :loading="loading"
-                sort-by="calories"
+                sort-by="index"
                 item-key="id"
                 :items-per-page="15"
                 class="elevation-1">
@@ -233,6 +233,21 @@ export default {
             })
             .finally(() => this.loading = false);
         },
+        updateUsers() {
+            console.log('run "method" : updateUsers()');
+            this.loading = true;
+            axios
+            .put('/users', {users: this.users})
+            .then(response => {
+                console.log(response);
+                this.users = response.data;
+            })
+            .catch(error => {
+                console.log(error);
+                this.errored = true;
+            })
+            .finally(() => this.loading = false);
+        },
         getColor(active) {
             if (active) {
                 return 'green';
@@ -255,11 +270,14 @@ export default {
         },
         save() {
             if (this.editedIndex > -1) {
+                // update object
                 Object.assign(this.users[this.editedIndex], this.editedItem);
             }
             else {
+                // new object
                 this.users.push(this.editedItem);
             }
+            this.updateUsers();
             this.close();
         },
     },

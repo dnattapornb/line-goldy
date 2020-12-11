@@ -2137,6 +2137,23 @@ __webpack_require__.r(__webpack_exports__);
         return _this.loading = false;
       });
     },
+    updateUsers: function updateUsers() {
+      var _this2 = this;
+
+      console.log('run "method" : updateUsers()');
+      this.loading = true;
+      axios.put('/users', {
+        users: this.users
+      }).then(function (response) {
+        console.log(response);
+        _this2.users = response.data;
+      })["catch"](function (error) {
+        console.log(error);
+        _this2.errored = true;
+      })["finally"](function () {
+        return _this2.loading = false;
+      });
+    },
     getColor: function getColor(active) {
       if (active) {
         return 'green';
@@ -2150,21 +2167,24 @@ __webpack_require__.r(__webpack_exports__);
       this.dialog = true;
     },
     close: function close() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.dialog = false;
       this.$nextTick(function () {
-        _this2.editedItem = Object.assign({}, _this2.defaultItem);
-        _this2.editedIndex = -1;
+        _this3.editedItem = Object.assign({}, _this3.defaultItem);
+        _this3.editedIndex = -1;
       });
     },
     save: function save() {
       if (this.editedIndex > -1) {
+        // update object
         Object.assign(this.users[this.editedIndex], this.editedItem);
       } else {
+        // new object
         this.users.push(this.editedItem);
       }
 
+      this.updateUsers();
       this.close();
     }
   }
@@ -38404,7 +38424,7 @@ var render = function() {
           search: _vm.search,
           options: _vm.options,
           loading: _vm.loading,
-          "sort-by": "calories",
+          "sort-by": "index",
           "item-key": "id",
           "items-per-page": 15
         },
