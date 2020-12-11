@@ -4,46 +4,103 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
-use Carbon\Carbon;
-use Illuminate\View\View;
 use Symfony\Component\Yaml\Yaml;
+use function response;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        $path = 'models\line-users.yaml';
-        $exists = Storage::disk('local')->exists($path);
-        $users = [];
-        if ($exists) {
-            $users = Yaml::parse(Storage::disk('local')->get($path));
-        }
+    private $path, $users;
 
-        return \response()->json($users);
+    /**
+     * UserController constructor.
+     *
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    public function __construct()
+    {
+        $this->path = 'models\line-users.yaml';
+        $this->users = [];
+        $exists = Storage::disk('local')->exists($this->path);
+        if ($exists) {
+            $this->users = Yaml::parse(Storage::disk('local')->get($this->path));
+        }
+        else {
+            Storage::disk('local')->put($this->path, Yaml::dump($this->users));
+        }
     }
 
-    public function update(Request $request)
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
     {
-        $path = 'models\line-users.yaml';
-        $exists = Storage::disk('local')->exists($path);
-        $users = [];
-        if ($exists) {
-            $users = Yaml::parse(Storage::disk('local')->get($path));
-            if ($request->exists('users')) {
-                $_users = $request->get('users');
+        return Response()->json($this->users);
+    }
 
-                try {
-                    Storage::disk('local')->put($path, Yaml::dump($_users));
-                    $users = $_users;
-                } catch (\Exception $e) {
-                }
+    /**
+     * Display the specified resource.
+     *
+     * @param  string  $id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(string $id)
+    {
+        $user = [];
+        foreach ($this->users as $item) {
+            if ($item['id'] === $id) {
+                $user = $item;
+                break;
             }
         }
 
-        return \response()->json($users);
+        return Response()->json($user);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string                    $id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, string $id)
+    {
+        if ($request->exists('id')) {
+            $user = $request->toArray();
+            foreach ($this->users as &$item) {
+                if ($item['id'] === $id) {
+                    $item['name'] = $user['name'];
+                    $item['displayName'] = $user['displayName'];
+                    $item['pictureUrl'] = $user['pictureUrl'];
+                    $item['active'] = $user['active'] ?? false;
+                    $item['friend'] = $user['friend'] ?? false;
+                    break;
+                }
+            }
+
+            try {
+                Storage::disk('local')->put($this->path, Yaml::dump($this->users));
+            } catch (\Exception $e) {
+            }
+        }
+
+        return Response()->json($this->users);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  string  $id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(string $id)
+    {
+        return Response()->json(['id' => $id]);
     }
 }

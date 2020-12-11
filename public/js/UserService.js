@@ -2137,14 +2137,12 @@ __webpack_require__.r(__webpack_exports__);
         return _this.loading = false;
       });
     },
-    updateUsers: function updateUsers() {
+    updateUsers: function updateUsers(user) {
       var _this2 = this;
 
       console.log('run "method" : updateUsers()');
       this.loading = true;
-      axios.put('/users', {
-        users: this.users
-      }).then(function (response) {
+      axios.put('/users/' + user.id, user).then(function (response) {
         console.log(response);
         _this2.users = response.data;
       })["catch"](function (error) {
@@ -2177,14 +2175,13 @@ __webpack_require__.r(__webpack_exports__);
     },
     save: function save() {
       if (this.editedIndex > -1) {
-        // update object
         Object.assign(this.users[this.editedIndex], this.editedItem);
+        this.updateUsers(this.editedItem);
       } else {
         // new object
         this.users.push(this.editedItem);
       }
 
-      this.updateUsers();
       this.close();
     }
   }

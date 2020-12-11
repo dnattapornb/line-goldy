@@ -233,11 +233,11 @@ export default {
             })
             .finally(() => this.loading = false);
         },
-        updateUsers() {
+        updateUsers(user) {
             console.log('run "method" : updateUsers()');
             this.loading = true;
             axios
-            .put('/users', {users: this.users})
+            .put('/users/'+user.id, user)
             .then(response => {
                 console.log(response);
                 this.users = response.data;
@@ -270,14 +270,13 @@ export default {
         },
         save() {
             if (this.editedIndex > -1) {
-                // update object
                 Object.assign(this.users[this.editedIndex], this.editedItem);
+                this.updateUsers(this.editedItem);
             }
             else {
                 // new object
                 this.users.push(this.editedItem);
             }
-            this.updateUsers();
             this.close();
         },
     },

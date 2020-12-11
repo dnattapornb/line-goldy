@@ -25,6 +25,7 @@
     displayName: tong.b
     pictureUrl: null
     active: true
+    friend: false
 -
     id: U915bb59bf9a4a7116b524852b6b46008
     name: ตี๋
