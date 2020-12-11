@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -13,8 +14,6 @@ class UserController extends Controller
     private $path, $users;
 
     /**
-     * UserController constructor.
-     *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function __construct()
@@ -31,8 +30,6 @@ class UserController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function index()
@@ -41,8 +38,6 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
      * @param  string  $id
      *
      * @return \Illuminate\Http\JsonResponse
@@ -61,8 +56,6 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
      * @param  \Illuminate\Http\Request  $request
      * @param  string                    $id
      *
@@ -85,7 +78,7 @@ class UserController extends Controller
 
             try {
                 Storage::disk('local')->put($this->path, Yaml::dump($this->users));
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
             }
         }
 
@@ -93,8 +86,6 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
      * @param  string  $id
      *
      * @return \Illuminate\Http\JsonResponse
