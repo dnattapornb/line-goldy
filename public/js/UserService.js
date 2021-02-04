@@ -2028,6 +2028,37 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'UserTable',
   filters: {
@@ -2047,54 +2078,60 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       dialog: false,
-      dialogDelete: false,
+      expanded: [],
+      singleExpand: true,
       search: null,
       loading: false,
       options: {},
       headers: [{
         text: '',
-        align: 'center',
-        sortable: false,
-        value: 'active'
-      }, {
-        text: '',
-        align: 'center',
-        sortable: false,
-        value: 'friend'
+        value: 'data-table-expand'
       }, {
         text: 'Id',
-        sortable: false,
+        align: 'center',
         value: 'id'
       }, {
-        text: 'Display Name',
+        text: 'Key (Line)*',
+        sortable: false,
+        value: 'key'
+      }, {
+        text: 'Display Name (Line)*',
         align: 'start',
         sortable: false,
-        value: 'displayName'
+        value: 'display_name'
       }, {
         text: 'Name',
         value: 'name'
       }, {
-        text: '',
+        text: 'Status(es)',
+        align: 'center',
         sortable: false,
-        value: 'actions'
+        value: 'status'
+      }, {
+        text: 'Action(s)',
+        align: 'center',
+        sortable: false,
+        value: 'action'
       }],
       users: [],
       editedIndex: -1,
       editedItem: {
         id: '',
-        name: null,
-        displayName: null,
-        pictureUrl: null,
-        active: false,
-        friend: false
+        key: '',
+        name: '',
+        display_name: null,
+        picture_url: null,
+        published: false,
+        is_friend: false
       },
       defaultItem: {
         id: '',
+        key: '',
         name: null,
-        displayName: null,
-        pictureUrl: null,
-        active: false,
-        friend: false
+        display_name: null,
+        picture_url: null,
+        published: false,
+        is_friend: false
       }
     };
   },
@@ -2106,9 +2143,6 @@ __webpack_require__.r(__webpack_exports__);
   watch: {
     dialog: function dialog(val) {
       val || this.close();
-    },
-    dialogDelete: function dialogDelete(val) {
-      val || this.closeDelete();
     }
   },
   created: function created() {
@@ -2144,7 +2178,8 @@ __webpack_require__.r(__webpack_exports__);
       this.loading = true;
       axios.put('/users/' + user.id, user).then(function (response) {
         console.log(response);
-        _this2.users = response.data;
+
+        _this2.getUsers();
       })["catch"](function (error) {
         console.log(error);
         _this2.errored = true;
@@ -2152,8 +2187,8 @@ __webpack_require__.r(__webpack_exports__);
         return _this2.loading = false;
       });
     },
-    getColor: function getColor(active) {
-      if (active) {
+    getColor: function getColor(value) {
+      if (value) {
         return 'green';
       } else {
         return 'red';
@@ -2175,7 +2210,6 @@ __webpack_require__.r(__webpack_exports__);
     },
     save: function save() {
       if (this.editedIndex > -1) {
-        Object.assign(this.users[this.editedIndex], this.editedItem);
         this.updateUsers(this.editedItem);
       } else {
         // new object
@@ -38423,41 +38457,71 @@ var render = function() {
           loading: _vm.loading,
           "sort-by": "index",
           "item-key": "id",
+          expanded: _vm.expanded,
+          "show-expand": "",
+          "single-expand": _vm.singleExpand,
+          "fixed-header": "",
+          height: "100%",
           "items-per-page": 15
         },
         on: {
           "update:options": function($event) {
             _vm.options = $event
+          },
+          "update:expanded": function($event) {
+            _vm.expanded = $event
           }
         },
         scopedSlots: _vm._u([
           {
-            key: "item.active",
+            key: "item.display_name",
             fn: function(ref) {
               var item = ref.item
               return [
-                _c(
-                  "v-chip",
-                  { attrs: { color: _vm.getColor(item.active), dark: "" } },
-                  [
-                    item.active
-                      ? _c("span", [_vm._v("Active")])
-                      : _c("span", [_vm._v("Inactive")])
-                  ]
-                )
+                _c("div", {
+                  domProps: {
+                    innerHTML: _vm._f("highlight")(
+                      item.display_name,
+                      _vm.search
+                    )
+                  }
+                })
               ]
             }
           },
           {
-            key: "item.friend",
+            key: "item.name",
+            fn: function(ref) {
+              var item = ref.item
+              return [
+                _c("div", {
+                  domProps: {
+                    innerHTML: _vm._f("highlight")(item.name, _vm.search)
+                  }
+                })
+              ]
+            }
+          },
+          {
+            key: "item.status",
             fn: function(ref) {
               var item = ref.item
               return [
                 _c(
                   "v-chip",
-                  { attrs: { color: _vm.getColor(item.friend), dark: "" } },
+                  { attrs: { color: _vm.getColor(item.published), dark: "" } },
                   [
-                    item.friend
+                    item.published
+                      ? _c("span", [_vm._v("Published")])
+                      : _c("span", [_vm._v("Published")])
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "v-chip",
+                  { attrs: { color: _vm.getColor(item.is_friend), dark: "" } },
+                  [
+                    item.is_friend
                       ? _c(
                           "span",
                           [
@@ -38482,20 +38546,7 @@ var render = function() {
             }
           },
           {
-            key: "item.displayName",
-            fn: function(ref) {
-              var item = ref.item
-              return [
-                _c("div", {
-                  domProps: {
-                    innerHTML: _vm._f("highlight")(item.displayName, _vm.search)
-                  }
-                })
-              ]
-            }
-          },
-          {
-            key: "item.actions",
+            key: "item.action",
             fn: function(ref) {
               var item = ref.item
               return [
@@ -38522,6 +38573,39 @@ var render = function() {
             }
           },
           {
+            key: "expanded-item",
+            fn: function(ref) {
+              var headers = ref.headers
+              var item = ref.item
+              return [
+                _c("td", { attrs: { colspan: headers.length } }, [
+                  _c("div", { staticClass: "row sp-details" }, [
+                    _c(
+                      "div",
+                      { staticClass: "col-4 text-right" },
+                      [_c("v-text-field", { attrs: { label: "Label" } })],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "col-4 text-right" },
+                      [_c("v-text-field", { attrs: { label: "Label 1" } })],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "col-4 text-right" },
+                      [_c("v-text-field", { attrs: { label: "Label 2" } })],
+                      1
+                    )
+                  ])
+                ])
+              ]
+            }
+          },
+          {
             key: "top",
             fn: function() {
               return [
@@ -38536,6 +38620,18 @@ var render = function() {
                     _c("v-divider", {
                       staticClass: "mx-4",
                       attrs: { inset: "", vertical: "" }
+                    }),
+                    _vm._v(" "),
+                    _c("v-switch", {
+                      staticClass: "ma-2",
+                      attrs: { label: "Single expand" },
+                      model: {
+                        value: _vm.singleExpand,
+                        callback: function($$v) {
+                          _vm.singleExpand = $$v
+                        },
+                        expression: "singleExpand"
+                      }
                     }),
                     _vm._v(" "),
                     _c("v-spacer"),
@@ -38654,18 +38750,19 @@ var render = function() {
                                             _c("v-switch", {
                                               attrs: {
                                                 inset: "",
-                                                label: "Status"
+                                                label: "Published"
                                               },
                                               model: {
-                                                value: _vm.editedItem.active,
+                                                value: _vm.editedItem.published,
                                                 callback: function($$v) {
                                                   _vm.$set(
                                                     _vm.editedItem,
-                                                    "active",
+                                                    "published",
                                                     $$v
                                                   )
                                                 },
-                                                expression: "editedItem.active"
+                                                expression:
+                                                  "editedItem.published"
                                               }
                                             })
                                           ],
@@ -38678,20 +38775,55 @@ var render = function() {
                                           [
                                             _c("v-text-field", {
                                               attrs: {
-                                                label: "Id (Line)*",
+                                                label: "Key (Line)*",
                                                 required: "",
                                                 readonly: ""
                                               },
                                               model: {
-                                                value: _vm.editedItem.id,
+                                                value: _vm.editedItem.key,
                                                 callback: function($$v) {
                                                   _vm.$set(
                                                     _vm.editedItem,
-                                                    "id",
+                                                    "key",
                                                     $$v
                                                   )
                                                 },
-                                                expression: "editedItem.id"
+                                                expression: "editedItem.key"
+                                              }
+                                            })
+                                          ],
+                                          1
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "v-col",
+                                          {
+                                            attrs: {
+                                              cols: "12",
+                                              sm: "6",
+                                              md: "6"
+                                            }
+                                          },
+                                          [
+                                            _c("v-text-field", {
+                                              attrs: {
+                                                label: "Display Name (Line)*",
+                                                required: "",
+                                                readonly:
+                                                  _vm.editedItem.is_friend
+                                              },
+                                              model: {
+                                                value:
+                                                  _vm.editedItem.display_name,
+                                                callback: function($$v) {
+                                                  _vm.$set(
+                                                    _vm.editedItem,
+                                                    "display_name",
+                                                    $$v
+                                                  )
+                                                },
+                                                expression:
+                                                  "editedItem.display_name"
                                               }
                                             })
                                           ],
@@ -38720,40 +38852,6 @@ var render = function() {
                                                   )
                                                 },
                                                 expression: "editedItem.name"
-                                              }
-                                            })
-                                          ],
-                                          1
-                                        ),
-                                        _vm._v(" "),
-                                        _c(
-                                          "v-col",
-                                          {
-                                            attrs: {
-                                              cols: "12",
-                                              sm: "6",
-                                              md: "6"
-                                            }
-                                          },
-                                          [
-                                            _c("v-text-field", {
-                                              attrs: {
-                                                label: "Display Name (Line)*",
-                                                required: "",
-                                                readonly: _vm.editedItem.friend
-                                              },
-                                              model: {
-                                                value:
-                                                  _vm.editedItem.displayName,
-                                                callback: function($$v) {
-                                                  _vm.$set(
-                                                    _vm.editedItem,
-                                                    "displayName",
-                                                    $$v
-                                                  )
-                                                },
-                                                expression:
-                                                  "editedItem.displayName"
                                               }
                                             })
                                           ],

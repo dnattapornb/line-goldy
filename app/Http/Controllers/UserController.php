@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LineUser;
+use App\Models\RomCharacter;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -34,7 +36,25 @@ class UserController extends Controller
      */
     public function index()
     {
-        return Response()->json($this->users);
+        $users = LineUser::all();
+        $_users = null;
+        if ($users->count()) {
+            $_users = [];
+            foreach ($users as $user) {
+                $_user = $user->toArray();
+                if (!isset($_user['characters']) || empty($_user['characters'])) {
+                    $_user['characters'] = [];
+                }
+                $characters = $user->characters()->get();
+                if ($characters->count()) {
+                    $_user['characters'] = $characters->toArray();
+                }
+
+                array_push($_users, $_user);
+            }
+        }
+
+        return Response()->json($_users);
     }
 
     /**
@@ -63,26 +83,17 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if ($request->exists('id')) {
-            $user = $request->toArray();
-            foreach ($this->users as &$item) {
-                if ($item['id'] === $id) {
-                    $item['name'] = $user['name'];
-                    $item['displayName'] = $user['displayName'];
-                    $item['pictureUrl'] = $user['pictureUrl'];
-                    $item['active'] = $user['active'] ?? false;
-                    $item['friend'] = $user['friend'] ?? false;
-                    break;
-                }
-            }
+        /** @var \App\Models\LineUser $user */
+        $user = LineUser::find($id);
 
-            try {
-                Storage::disk('local')->put($this->path, Yaml::dump($this->users));
-            } catch (Exception $e) {
-            }
+        if ($user) {
+            $user->setPublished($request->toArray()['published'] ?? false);
+            $user->setDisplayName(trim($request->toArray()['display_name']) ?? '');
+            $user->setName(trim($request->toArray()['name']) ?? '');
+            $user->save();
         }
 
-        return Response()->json($this->users);
+        return Response()->json($user);
     }
 
     /**
@@ -93,5 +104,62 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         return Response()->json(['id' => $id]);
+    }
+
+    public function test()
+    {
+        /** @var LineUser $user */
+        $user = LineUser::find(1);
+        dump($user);
+
+        $characters = $user->characters()->get();
+        dump($characters, $characters->count(), $characters->toArray());
+
+        // $this->save_character($user);
+        // $this->associate_character($user);
+        $this->dissociate_character($user);
+    }
+
+    private function save_character(LineUser $user)
+    {
+        $character = new RomCharacter();
+        $character->setKey(1238);
+        $character->setName('test1238');
+        $user->characters()->save($character);
+
+        $characters = $user->characters()->get();
+        dump($characters, $characters->count(), $characters->toArray());
+
+        exit();
+    }
+
+    private function associate_character(LineUser $user)
+    {
+        /** @var RomCharacter $character */
+        $character = RomCharacter::find(2);
+        // dd($character->toArray());
+
+        $character->user()->associate($user);
+        $character->save();
+
+        $characters = $user->characters()->get();
+        dump($characters, $characters->count(), $characters->toArray());
+
+        exit();
+    }
+
+    private function dissociate_character(LineUser $user)
+    {
+        /** @var RomCharacter $character */
+        $character = RomCharacter::find(2);
+        // dd($character->toArray());
+
+        $character->user()->dissociate();
+        $character->save();
+
+        $characters = $user->characters()->get();
+        dump($characters, $characters->count(), $characters->toArray());
+
+        exit();
     }
 }

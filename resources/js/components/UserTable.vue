@@ -8,23 +8,33 @@
                 :loading="loading"
                 sort-by="index"
                 item-key="id"
+                :expanded.sync="expanded"
+                show-expand
+                :single-expand="singleExpand"
+                fixed-header
+                height="100%"
                 :items-per-page="15"
                 class="elevation-1">
-            <template v-slot:item.active="{ item }">
-                <v-chip
-                        :color="getColor(item.active)"
-                        dark
-                >
-                    <span v-if="item.active">Active</span>
-                    <span v-else>Inactive</span>
-                </v-chip>
+            <template v-slot:item.display_name="{ item }">
+                <div :inner-html.prop="item.display_name | highlight(search)"></div>
             </template>
-            <template v-slot:item.friend="{ item }">
+            <template v-slot:item.name="{ item }">
+                <div :inner-html.prop="item.name | highlight(search)"></div>
+            </template>
+            <template v-slot:item.status="{ item }">
                 <v-chip
-                        :color="getColor(item.friend)"
+                        :color="getColor(item.published)"
                         dark
                 >
-                    <span v-if="item.friend">
+                    <span v-if="item.published">Published</span>
+                    <span v-else>Published</span>
+                </v-chip>
+
+                <v-chip
+                        :color="getColor(item.is_friend)"
+                        dark
+                >
+                    <span v-if="item.is_friend">
                         <v-icon dark>mdi-account-multiple-check-outline</v-icon>
                     </span>
                     <span v-else>
@@ -32,24 +42,45 @@
                     </span>
                 </v-chip>
             </template>
-            <template v-slot:item.displayName="{ item }">
-                <div :inner-html.prop="item.displayName | highlight(search)"></div>
-            </template>
-            <!--<template v-slot:item.name="{ item }">
-                <div :inner-html.prop="item.name | highlight(search)"></div>
-            </template>-->
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:item.action="{ item }">
                 <v-btn small class="ma-2" color="orange" dark @click="editItem(item)">
                     edit
                     <v-icon dark right>mdi-circle-edit-outline</v-icon>
                 </v-btn>
+            </template>
+            <template v-slot:expanded-item="{ headers, item }">
+                <td :colspan="headers.length">
+                    <div class="row sp-details">
+                        <div class="col-4 text-right">
+                            <v-text-field
+                                    label="Label"
+                            ></v-text-field>
+                        </div>
+                        <div class="col-4 text-right">
+                            <v-text-field
+                                    label="Label 1"
+                            ></v-text-field>
+                        </div>
+                        <div class="col-4 text-right">
+                            <v-text-field
+                                    label="Label 2"
+                            ></v-text-field>
+                        </div>
+                    </div>
+                </td>
             </template>
 
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-toolbar-title>{{ 'user' | uppercase }}</v-toolbar-title>
                     <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-switch
+                            v-model="singleExpand"
+                            label="Single expand"
+                            class="ma-2"
+                    ></v-switch>
                     <v-spacer></v-spacer>
+
                     <v-text-field
                             v-model="search"
                             append-icon="mdi-magnify"
@@ -77,25 +108,25 @@
                                     <v-row>
                                         <v-col cols="12">
                                             <v-switch
-                                                    v-model="editedItem.active"
+                                                    v-model="editedItem.published"
                                                     inset
-                                                    label="Status"
+                                                    label="Published"
                                             ></v-switch>
                                         </v-col>
                                         <v-col cols="12">
-                                            <v-text-field v-model="editedItem.id"
-                                                          label="Id (Line)*"
+                                            <v-text-field v-model="editedItem.key"
+                                                          label="Key (Line)*"
                                                           required
                                                           readonly></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.name" label="Name"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.displayName"
+                                            <v-text-field v-model="editedItem.display_name"
                                                           label="Display Name (Line)*"
                                                           required
-                                                          :readonly="editedItem.friend"></v-text-field>
+                                                          :readonly="editedItem.is_friend"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="editedItem.name" label="Name"></v-text-field>
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -137,61 +168,65 @@ export default {
     },
     data: () => ({
         dialog: false,
-        dialogDelete: false,
+        expanded: [],
+        singleExpand: true,
         search: null,
         loading: false,
         options: {},
         headers: [
-            {
-                text: '',
-                align: 'center',
-                sortable: false,
-                value: 'active',
-            },
-            {
-                text: '',
-                align: 'center',
-                sortable: false,
-                value: 'friend',
-            },
+            {text: '', value: 'data-table-expand'},
             {
                 text: 'Id',
-                sortable: false,
+                align: 'center',
                 value: 'id',
             },
             {
-                text: 'Display Name',
+                text: 'Key (Line)*',
+                sortable: false,
+                value: 'key',
+            },
+            {
+                text: 'Display Name (Line)*',
                 align: 'start',
                 sortable: false,
-                value: 'displayName',
+                value: 'display_name',
             },
             {
                 text: 'Name',
-                value: 'name'
+                value: 'name',
             },
             {
-                text: '',
+                text: 'Status(es)',
+                align: 'center',
                 sortable: false,
-                value: 'actions'
+                value: 'status',
+            },
+            {
+                text: 'Action(s)',
+                align: 'center',
+                sortable: false,
+                value: 'action',
             },
         ],
         users: [],
         editedIndex: -1,
         editedItem: {
             id: '',
-            name: null,
-            displayName: null,
-            pictureUrl: null,
-            active: false,
-            friend: false,
+            key: '',
+            name: '',
+            display_name: null,
+            picture_url: null,
+            published: false,
+            is_friend: false,
         },
         defaultItem: {
             id: '',
+            key: '',
             name: null,
-            displayName: null,
-            pictureUrl: null,
-            active: false,
-            friend: false,
+            display_name: null,
+            picture_url: null,
+            published: false,
+            is_friend: false,
         },
     }),
     computed: {
@@ -202,9 +237,6 @@ export default {
     watch: {
         dialog(val) {
             val || this.close();
-        },
-        dialogDelete(val) {
-            val || this.closeDelete();
         },
     },
     created() {
@@ -237,10 +269,10 @@ export default {
             console.log('run "method" : updateUsers()');
             this.loading = true;
             axios
-            .put('/users/'+user.id, user)
+            .put('/users/' + user.id, user)
             .then(response => {
                 console.log(response);
-                this.users = response.data;
+                this.getUsers();
             })
             .catch(error => {
                 console.log(error);
@@ -248,8 +280,8 @@ export default {
             })
             .finally(() => this.loading = false);
         },
-        getColor(active) {
-            if (active) {
+        getColor(value) {
+            if (value) {
                 return 'green';
             }
             else {
@@ -270,7 +302,6 @@ export default {
         },
         save() {
             if (this.editedIndex > -1) {
-                Object.assign(this.users[this.editedIndex], this.editedItem);
                 this.updateUsers(this.editedItem);
             }
             else {

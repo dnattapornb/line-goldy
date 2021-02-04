@@ -141,6 +141,9 @@ class LineBotController extends Controller
                             case "text" :
                                 $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder("text message");
                                 break;
+                            case "โกลดี้ทำได้ป่าว" :
+                                $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder("ต้องมาดูที่บ้านครับ");
+                                break;
                             case "location" :
                                 $outputText = new \LINE\LINEBot\MessageBuilder\LocationMessageBuilder("Eiffel Tower", "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France", 48.858328, 2.294750);
                                 break;
@@ -177,7 +180,7 @@ class LineBotController extends Controller
                                 $outputText = new \LINE\LINEBot\MessageBuilder\TemplateMessageBuilder("Carousel Demo", $carousel);
                                 break;
                             case "image" :
-                                $img_url = "https://cdn.shopify.com/s/files/1/0379/7669/products/sampleset2_1024x1024.JPG?v=1458740363";
+                                $img_url = "https://cdn.imageupload.workers.dev/6VqhfzZC_S__70852755.jpg";
                                 $outputText = new \LINE\LINEBot\MessageBuilder\ImageMessageBuilder($img_url, $img_url);
                                 break;
                             case "confirm" :
