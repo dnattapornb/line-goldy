@@ -26,3 +26,7 @@ Route::resource('users', UserController::class)->only([
     'index', 'show', 'update', 'destroy'
 ]);
 Route::get('/test', 'UserController@test')->name('test');
+
+Route::get('/novel', 'NovelController@index')->name('novel.gets');
+Route::get('/novel/{novel}', 'NovelController@eBookAdaptor')->name('novel.ebook');
+Route::get('/file', 'NovelController@file')->name('novel.files');
