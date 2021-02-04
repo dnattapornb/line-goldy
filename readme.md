@@ -1,5 +1,21 @@
-CREATE SCHEMA `unique` DEFAULT CHARACTER SET utf8mb4 ;
+#### Create a "storage/app/public" link from "public/storage" to "/Users/nattaporn.d/Desktop/\_\_NOVEL\_\_"
+```
+ln -s target_path link_path
+ln -s /Users/nattaporn.d/Desktop/__NOVEL__ storage/app/public
+```
 
+#### Create a symbolic link from "public/storage" to "storage/app/public"
+```
+php artisan storage:link 
+```
+
+#### Create database "unique"
+```
+CREATE SCHEMA \`unique\` DEFAULT CHARACTER SET utf8mb4 ;
+```
+
+#### Migration and Seed table
+```
 php artisan make:migration create_line_users_table --create=line_users
 php artisan make:model Models/LineUser
 
@@ -10,3 +26,4 @@ php artisan make:model Models/RomCharacter
 
 php artisan migrate
 php artisan db:seed
+```
