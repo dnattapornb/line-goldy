@@ -1,0 +1,9 @@
+*
+!public/
+!.gitignore
+
+!configs/
+!configs/*
+
+!models/
+!models/*

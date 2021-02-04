@@ -1,7 +1,9 @@
 #### Create a "storage/app/public" link from "public/storage" to "/Users/nattaporn.d/Desktop/\_\_NOVEL\_\_"
 ```
-ln -s target_path link_path
-ln -s /Users/nattaporn.d/Desktop/__NOVEL__ storage/app/public
+mkdir storage/app/public
+
+ln -s "target_path" "link_path"
+ln -s /Users/nattaporn.d/Desktop/__NOVEL__/novel storage/app/public/novel
 ```
 
 #### Create a symbolic link from "public/storage" to "storage/app/public"
