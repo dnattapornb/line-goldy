@@ -4,6 +4,7 @@ mkdir storage/app/public
 
 ln -s "target_path" "link_path"
 ln -s /Users/nattaporn.d/Desktop/__NOVEL__/novel storage/app/public/novel
+ln -s /Users/nattaporn.d/Desktop/__NOVEL__/tmp storage/app/public/tmp
 ```
 
 #### Create a symbolic link from "public/storage" to "storage/app/public"

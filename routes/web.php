@@ -28,5 +28,5 @@ Route::resource('users', UserController::class)->only([
 Route::get('/test', 'UserController@test')->name('test');
 
 Route::get('/novel', 'NovelController@index')->name('novel.gets');
-Route::get('/novel/{novel}', 'NovelController@eBookAdaptor')->name('novel.ebook');
+Route::get('/novel/{code}', 'NovelController@show')->name('novel.ebook');
 Route::get('/file', 'NovelController@file')->name('novel.files');

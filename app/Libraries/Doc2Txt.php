@@ -1,14 +1,16 @@
 <?php
-/* 
-this class is used to convert any doc,docx file to simple text format.
-
-author: Vinod Kumar
-author's email: vinodgami1119@gmail.com
-author's phone: +91-9589420392
-*/
 
 namespace App\Libraries;
 
+/**
+ * this class is used to convert any doc,docx file to simple text format.
+ *
+ * author: Vinod Kumar
+ * author's email: vinodgami1119@gmail.com
+ * author's phone: +91-9589420392
+ *
+ * @package App\Libraries
+ */
 class Doc2Txt
 {
     private $filename;
@@ -18,7 +20,7 @@ class Doc2Txt
         $this->filename = $filePath;
     }
 
-    private function read_doc()
+    private function readDoc()
     {
         $fileHandle = fopen($this->filename, "r");
         $line = @fread($fileHandle, filesize($this->filename));
@@ -37,7 +39,7 @@ class Doc2Txt
         return $outtext;
     }
 
-    private function read_docx()
+    private function readDocx()
     {
         $striped_content = '';
         $content = '';
@@ -81,10 +83,10 @@ class Doc2Txt
         $file_ext = $fileArray['extension'];
         if ($file_ext == "doc" || $file_ext == "docx") {
             if ($file_ext == "doc") {
-                return $this->read_doc();
+                return $this->readDoc();
             }
             else {
-                return $this->read_docx();
+                return $this->readDocx();
             }
         }
         else {
