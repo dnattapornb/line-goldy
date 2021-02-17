@@ -91,7 +91,7 @@ class NovelService
     /**
      * @param  null  $code
      *
-     * @return Novel[]|array
+     * @return Novel[]
      */
     public function getNovels($code = null)
     {
