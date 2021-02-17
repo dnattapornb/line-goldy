@@ -591,7 +591,7 @@ class NovelController extends Controller
             $data['id'] = $chapter[2];
 
             // 567-0, 567-1
-            if (isset($chapter[3])) {
+            if (isset($chapter[3]) && !empty($chapter[3])) {
                 $data['id'] = $chapter[2].'-'.$chapter[3];
             }
 
@@ -776,6 +776,7 @@ class NovelController extends Controller
         $htmlContentFooter[] = "</body>";
         $htmlContentFooter[] = "</html>";
         $htmlContentFooter[] = "\n";
+        $htmlContentFooter = implode("\n", $htmlContentFooter);
 
         return $htmlContentFooter;
     }
