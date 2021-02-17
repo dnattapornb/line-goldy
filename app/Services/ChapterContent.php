@@ -9,6 +9,8 @@ class ChapterContent
     /** @var string */
     private $id;
     /** @var string */
+    private $title = '';
+    /** @var string */
     private $name;
     /** @var array */
     private $contents = [];
@@ -33,6 +35,22 @@ class ChapterContent
     public function setId(string $id):void
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle():string
+    {
+        return $this->title;
+    }
+
+    /**
+     * @param  string  $title
+     */
+    public function setTitle(string $title):void
+    {
+        $this->title = $title;
     }
 
     /**

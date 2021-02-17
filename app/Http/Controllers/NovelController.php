@@ -73,7 +73,7 @@ class NovelController extends Controller
                                     $pattern = '/(\d+)\s*([\-|\.]?)\s*(\d*)\.(.*?)$/';
                                     preg_match($pattern, $fileName, $matches);
                                     if (!empty($matches)) {
-                                        $_INDEX_ = $this->fillZero(intval($matches[1]));
+                                        $_INDEX_ = $this->convertZeroFill(intval($matches[1]));
                                         if (isset($matches[2]) && !empty($matches[2]) && isset($matches[3]) && !empty($matches[3])) {
                                             $_INDEX_ .= $matches[2];
                                             $_INDEX_ .= intval($matches[3]);
@@ -99,7 +99,7 @@ class NovelController extends Controller
                 $novel->setChapters($chapters);
             }
         } catch (\Exception $e) {
-            dump($e->getCode(), $e->getMessage(), $e);
+            dd($e->getCode(), $e->getMessage(), $e);
         }
 
         foreach ($novels as $novel) {
@@ -461,18 +461,54 @@ class NovelController extends Controller
             $index = 0;
             if ($dom) {
                 $body = $dom->find('body', 0);
-                $name = $body->find('h3.chapter_heading', 0)->plaintext;
+
+                $title = null;
+                if ($body->find('h1.chapter_hidden', 0)) {
+                    $title = $body->find('h1.chapter_hidden', 0)->plaintext;
+                }
+
+                $name = null;
+                if ($body->find('h3.chapter_heading', 0)) {
+                    $name = $body->find('h3.chapter_heading', 0)->plaintext;
+                }
+                else {
+                    throw new \Exception('Error, chapter name ['.$text.'], on ['.$code.']', 7000);
+                }
+
                 $chapter = $this->isChapter($name, $code);
-                $id = $chapter[2];
-                if (isset($chapter[3]) && !empty($chapter[3])) {
+                if (empty($chapter)) {
+                    throw new \Exception('Error, empty chapter regx ['.serialize($chapter).']', 7000);
+                }
+                else {
+                    if (!isset($chapter[1]) || empty($chapter[1])) {
+                        throw new \Exception('Error, empty chapter[1] ['.serialize($chapter).']', 7000);
+                    }
+                    elseif (!isset($chapter[2])) {
+                        throw new \Exception('Error, empty chapter[2] ['.serialize($chapter).']', 7000);
+                    }
+
+                    // 567
+                    $id = $chapter[2];
+                }
+
+                // 567-0, 567-1
+                if (isset($chapter[3])) {
                     $id = $chapter[2].'-'.$chapter[3];
                 }
+
+                // บทที่ 567-1 การเปลี่ยนแปลง (1)
                 $name = $chapter[1].' '.$id.' '.trim($chapter[4]);
-                $relative = $this->novelService->getPath()['target']->getRelativePath().$code.'/chapters/text/';
+
+                // 56701.xhtml
                 $targetName = $id.'.'.$extension;
+
+                $relative = $this->novelService->getPath()['target']->getRelativePath().$code.'/chapters/text/';
 
                 $chapterContents[$index] = new ChapterContent();
                 $chapterContents[$index]->setId($id);
+                if ($title && strlen($title) > 0) {
+                    $chapterContents[$index]->setTitle($title);
+                }
                 $chapterContents[$index]->setName($name);
                 $chapterContents[$index]->setContents([]);
                 $target = new PathFile($this->novelService->getPath()['target']->getDisks(), $relative, $targetName);
@@ -510,7 +546,15 @@ class NovelController extends Controller
         return false;
     }
 
-    private function isChapter($text, $code = null, $error = false)
+    /**
+     * @param  string       $text
+     * @param  string|null  $code
+     * @param  boolean      $error
+     *
+     * @return array
+     * @throws \Exception
+     */
+    private function isChapter(string $text, $code = null, $error = false)
     {
         /**
          * $pattern = "/^(ตอนที่|บทที่)\s*(\d+)\s*\.?\-?\s*(\d+)*\s*\:?\s*(.*?)$/i"
@@ -547,7 +591,9 @@ class NovelController extends Controller
         $pattern .= '\s*(\d+)\s*\.?\-?\s*(\d+)*\s*\:?\s*(.*?)$/i';
         preg_match($pattern, $text, $matches);
         if ($error) {
-            dd($text, $pattern, $matches, count($matches));
+            if (!isset($matches[2])) {
+                throw new \Exception('Error, chapter ['.$text.'], on ['.$code.']', 7000);
+            }
         }
 
         return $matches;
@@ -560,7 +606,7 @@ class NovelController extends Controller
      * @return string
      * @throws \Exception
      */
-    private function fillZero($number, int $length = 4)
+    private function convertZeroFill($number, int $length = 4)
     {
         /**
          * $pattern = "/(\d+)([\-|\.]?)(\d*)$/"
@@ -588,7 +634,7 @@ class NovelController extends Controller
     /**
      * @param  \App\Services\Novel  $novel
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws \Exception|\Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     private function epubConverter(Novel $novel)
     {
@@ -643,12 +689,12 @@ class NovelController extends Controller
             dd($e->getCode(), $e->getMessage(), $e);
         }
 
-        $fileDir = './PHPePub';
         foreach ($novel->getChapters() as $chapter) {
             if (strlen($chapter->getName()) <= 0) {
                 throw new \Exception('Error, chapter\'s name is ['.$chapter->getName().']', 7000);
             }
             $chapterId = $chapter->getId();
+            $chapterTitle = $chapter->getTitle() ?? '';
             $chapterName = $chapter->getName();
             $chapterContents = $chapter->getContents();
             $chapterType = $chapter->getTarget()->getExtensions();
@@ -658,6 +704,9 @@ class NovelController extends Controller
             if ($chapterType === 'txt' || true) {
                 $chapterData = '';
                 $chapterData .= $htmlContentHeader;
+                if ($chapterTitle && strlen($chapterTitle) > 0) {
+                    $chapterData .= '<h1 class="chapter_hidden">'.$chapterTitle.'</h1>';
+                }
                 $chapterData .= '<h3 class="chapter_heading">'.$chapterName.'</h3>';
                 foreach ($chapterContents as $index => $content) {
                     $chapterData .= '<p class="p_normal">'.$content.'</p>';
@@ -668,6 +717,13 @@ class NovelController extends Controller
                 $chapterData = $description = Storage::disk($chapter->getTarget()->getDisks())->get($chapter->getTarget()->getRelativeFilePath());
             }
 
+            // Add Part -> Chapter
+            $isChapterTitle = true;
+            if ($chapterTitle && strlen($chapterTitle) > 0 && $isChapterTitle) {
+                $book->rootLevel();
+                $book->addChapter($chapterTitle, $fileName."#sub01");
+                $book->subLevel();
+            }
             $book->addChapter($chapterName, $fileName, $chapterData, true, EPub::EXTERNAL_REF_ADD);
         }
         // Finalize the book, and build the archive.
