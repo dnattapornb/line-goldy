@@ -27,6 +27,7 @@ use Symfony\Component\Yaml\Yaml;
 
 use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use DateTime;
 
 class NovelController extends Controller
 {
@@ -44,7 +45,7 @@ class NovelController extends Controller
     public function index()
     {
         $novels = $this->novelService->getNovels();
-        dd($novels);
+        dd($this->novelService, $novels);
     }
 
     public function show(string $code)
@@ -174,9 +175,7 @@ class NovelController extends Controller
                             $pattern .= '((\d+)\s*(\-?)\s*(\d*))';
                             $pattern .= '/i';
                             preg_match($pattern, $fileName, $matches);
-                            // dd($matches);
                             if (!empty($matches)) {
-                                // dd($file, $pattern, $matches);
                                 $fileName = $matches[1];
                                 $start = $matches[3];
                                 $separate = $matches[4];
@@ -497,11 +496,11 @@ class NovelController extends Controller
 
     private function isUrl($text)
     {
-        // check url ref, "https://fictionlog.co/c/5db14d7bcff050001a10acd6"
-        $matches = null;
+        /**
+         * $text = "https://fictionlog.co/c/5db14d7bcff050001a10acd6"
+         */
         $pattern = '/http[s]?\:/';
         preg_match($pattern, $text, $matches);
-        // dd($matches);
         if (!empty($matches)) {
             return true;
         }
@@ -644,6 +643,7 @@ class NovelController extends Controller
      */
     private function epubConverter(Novel $novel)
     {
+        $now = new DateTime();
         $htmlContentHeader = $this->getHtmlContentHeader();
         $htmlContentFooter = $this->getHtmlContentFooter();
 
@@ -652,11 +652,11 @@ class NovelController extends Controller
         // Title and Identifier are mandatory!
         $book->setTitle($novel->getTitle());
         $book->setIdentifier($novel->getTitle(), EPub::IDENTIFIER_URI);
-        $book->setLanguage('en');
-        $book->setDescription('Test Description');
+        $book->setLanguage('th');
+        $book->setDescription('นิยายไม่มีหมอน '.$now->format('c'));
         $book->setAuthor($novel->getAuthor(), $novel->getAuthor());
         $book->setPublisher('', '');
-        $book->setDate(time());
+        $book->setDate($now->getTimestamp());
         $book->setRights('Copyright and licence information specific for the book.');
         $book->setSourceURL('');
 
