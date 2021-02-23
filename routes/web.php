@@ -22,10 +22,11 @@ Route::get('/user', function () {
     return view('user/index');
 });
 
+Route::get('/test', 'UserController@test')->name('test');
+
 Route::resource('users', UserController::class)->only([
     'index', 'show', 'update', 'destroy'
 ]);
-Route::get('/test', 'UserController@test')->name('test');
 
 Route::get('/novel', 'NovelController@index')->name('novel.gets');
 Route::get('/novel/{code}', 'NovelController@show')->name('novel.ebook');

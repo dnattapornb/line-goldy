@@ -343,8 +343,6 @@ class NovelController extends Controller
             dump($e->getCode(), $e->getMessage(), $e);
         }
 
-        // dd($this->novelService, $this->novelService->getFileConverters(), $this->novelService->toArray(), $this->novelService->toArray()['fileConverters']);
-
         return Response()->json($this->novelService->toArray());
     }
 
