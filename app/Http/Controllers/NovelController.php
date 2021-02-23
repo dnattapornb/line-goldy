@@ -45,7 +45,7 @@ class NovelController extends Controller
     public function index()
     {
         $novels = $this->novelService->getNovels();
-        dd($this->novelService, $novels);
+        dd($novels, $this->novelService->toArray()['novels']);
     }
 
     public function show(string $code)
@@ -117,6 +117,9 @@ class NovelController extends Controller
         }
     }
 
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function file()
     {
         try {
@@ -340,7 +343,9 @@ class NovelController extends Controller
             dump($e->getCode(), $e->getMessage(), $e);
         }
 
-        dd($this->novelService, $this->novelService->getFileConverters(), $this->novelService->toArray(), $this->novelService->toArray()['fileConverters']);
+        // dd($this->novelService, $this->novelService->getFileConverters(), $this->novelService->toArray(), $this->novelService->toArray()['fileConverters']);
+
+        return Response()->json($this->novelService->toArray());
     }
 
     /*
