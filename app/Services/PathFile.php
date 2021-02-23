@@ -10,13 +10,13 @@ class PathFile
     private $disks;
     /** @var string */
     private $base;
-    /** @var string */
+    /** @var string|null */
     private $relative;
-    /** @var string */
+    /** @var string|null */
     private $file;
-    /** @var string */
+    /** @var string|null */
     private $extensions;
-    /** @var string */
+    /** @var string|null */
     private $mimeType;
     /** @var array */
     private $size = ['bytes' => null, 'units' => null];
@@ -58,9 +58,9 @@ class PathFile
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRelativePath():string
+    public function getRelativePath():?string
     {
         return $this->relative;
     }
@@ -74,9 +74,9 @@ class PathFile
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getFile():string
+    public function getFile():?string
     {
         return $this->file;
     }
@@ -136,9 +136,9 @@ class PathFile
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getExtensions():string
+    public function getExtensions():?string
     {
         return $this->extensions;
     }
@@ -152,9 +152,9 @@ class PathFile
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getMimeType():string
+    public function getMimeType():?string
     {
         return $this->mimeType;
     }
@@ -234,5 +234,20 @@ class PathFile
         }
 
         return $number * (1024 ** $exponent);
+    }
+
+    public function toArray()
+    {
+        return [
+            'disks'            => $this->getDisks(),
+            'base'             => $this->getBase(),
+            'relative'         => $this->getRelativePath(),
+            'relativeWithFile' => $this->getRelativeFilePath(),
+            'file'             => $this->getFile(),
+            'fullPath'         => $this->getFullPath(),
+            'extensions'       => $this->getExtensions(),
+            'mimeType'         => $this->getMimeType(),
+            'size'             => $this->getSize(),
+        ];
     }
 }

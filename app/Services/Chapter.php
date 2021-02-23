@@ -90,4 +90,21 @@ class Chapter
     {
         $this->chapterContents[] = $chapterContent;
     }
+
+    public function toArray()
+    {
+        $toArray = [
+            'start'           => $this->getStart(),
+            'end'             => $this->getEnd(),
+            'count'           => $this->getCount(),
+            'chapterContents' => [],
+        ];
+        if (sizeof($this->getChapterContents()) > 0) {
+            foreach ($this->getChapterContents() as $chapterContent) {
+                $toArray['chapterContents'][] = $chapterContent->toArray();
+            }
+        }
+
+        return $toArray;
+    }
 }

@@ -103,4 +103,14 @@ class FileConverter
     {
         $this::$text = $text;
     }
+
+    public function toArray()
+    {
+        return [
+            'code'    => $this->getCode(),
+            'source'  => $this->getSource()->toArray(),
+            'target'  => $this->getTarget()->toArray(),
+            'chapter' => $this->getChapter()->toArray(),
+        ];
+    }
 }

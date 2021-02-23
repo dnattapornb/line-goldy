@@ -179,4 +179,32 @@ class NovelService
     {
         $this->fileConverters[] = $fileConverters;
     }
+
+    public function toArray()
+    {
+        $toArray = [
+            'path'           => [],
+            'extensions'     => $this->getExtensions(),
+            'chapterNames'   => $this->getChapterNames(),
+            'novels'         => [],
+            'fileConverters' => [],
+        ];
+        if (sizeof($this->getPath()) > 0) {
+            foreach ($this->getPath() as $name => $path) {
+                $toArray['path'][$name] = $path->toArray();
+            }
+        }
+        if (sizeof($this->getNovels()) > 0) {
+            foreach ($this->getNovels() as $novel) {
+                $toArray['novels'][] = $novel->toArray();
+            }
+        }
+        if (sizeof($this->getFileConverters()) > 0) {
+            foreach ($this->getFileConverters() as $fileConverter) {
+                $toArray['fileConverters'][] = $fileConverter->toArray();
+            }
+        }
+
+        return $toArray;
+    }
 }

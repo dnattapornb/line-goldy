@@ -16,7 +16,7 @@ class Novel
     private $title = null;
     /** @var string */
     private $author = null;
-    /** @var string */
+    /** @var string|null */
     private $description = null;
     /** @var PathFile[] */
     private $path;
@@ -104,9 +104,9 @@ class Novel
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDescription():string
+    public function getDescription():?string
     {
         return $this->description;
     }
@@ -235,6 +235,33 @@ class Novel
     public function addChapters(\App\Services\ChapterContent $chapter):void
     {
         $this->chapters[] = $chapter;
+    }
+
+    public function toArray()
+    {
+        $toArray = [
+            'code'         => $this->getCode(),
+            'title'        => $this->getTitle(),
+            'author'       => $this->getAuthor(),
+            'description'  => $this->getDescription(),
+            'path'         => [],
+            'end'          => $this->getEnd(),
+            'chapterNames' => $this->getChapterNames(),
+            'fileNames'    => $this->getFileNames(),
+            'chapters'     => $this->getChapterNames(),
+        ];
+        if (sizeof($this->getPath()) > 0) {
+            foreach ($this->getPath() as $name => $path) {
+                $toArray['path'][$name] = $path->toArray();
+            }
+        }
+        if (sizeof($this->getChapters()) > 0) {
+            foreach ($this->getChapters() as $chapterContent) {
+                $toArray['chapters'][] = $chapterContent->toArray();
+            }
+        }
+
+        return $toArray;
     }
 }
 

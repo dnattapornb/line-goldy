@@ -340,7 +340,7 @@ class NovelController extends Controller
             dump($e->getCode(), $e->getMessage(), $e);
         }
 
-        dd($this->novelService, $this->novelService->getFileConverters());
+        dd($this->novelService, $this->novelService->getFileConverters(), $this->novelService->toArray(), $this->novelService->toArray()['fileConverters']);
     }
 
     /*

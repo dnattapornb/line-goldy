@@ -108,4 +108,15 @@ class ChapterContent
     {
         $this->target = $target;
     }
+
+    public function toArray()
+    {
+        return [
+            'id'       => $this->getId(),
+            'title'    => $this->getTitle(),
+            'name'     => $this->getName(),
+            'contents' => $this->getContents(),
+            'target'   => $this->getTarget()->toArray(),
+        ];
+    }
 }
