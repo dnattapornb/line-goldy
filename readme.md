@@ -1,3 +1,8 @@
+### Laravel IDE Helper Generator
+```
+https://github.com/barryvdh/laravel-ide-helper#automatic-PHPDocs-for-models
+```
+
 #### Create a "storage/app/public" link from "public/storage" to "/Users/nattaporn.d/Desktop/\_\_NOVEL\_\_"
 ```
 mkdir storage/app/public
