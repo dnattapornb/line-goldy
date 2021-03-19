@@ -6,11 +6,11 @@ use Illuminate\Support\Facades\Storage;
 
 class Chapter
 {
-    /** @var int */
+    /** @var int|null */
     private $start;
-    /** @var int */
+    /** @var int|null */
     private $end;
-    /** @var int */
+    /** @var int|null */
     private $count;
     /** @var ChapterContent[] */
     public $chapterContents = [];
@@ -20,9 +20,9 @@ class Chapter
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getStart():int
+    public function getStart():?int
     {
         return $this->start;
     }
@@ -36,9 +36,9 @@ class Chapter
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getEnd():int
+    public function getEnd():?int
     {
         return $this->end;
     }
@@ -52,9 +52,9 @@ class Chapter
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getCount():int
+    public function getCount():?int
     {
         return $this->count;
     }

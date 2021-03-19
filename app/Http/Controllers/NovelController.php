@@ -199,6 +199,10 @@ class NovelController extends Controller
                                                 $targetName = trim($start).trim($separate).trim('').'.'.$fileExtension;
                                             }
                                             $count = ($end - $start) + 1;
+                                            
+                                            if(!is_int($count) || intval($count) <= 0) {
+                                                dd($count, $relative, $matches);
+                                            }
 
                                             $fileConverter->getChapter()->setStart($start);
                                             $fileConverter->getChapter()->setEnd($end);
@@ -300,7 +304,7 @@ class NovelController extends Controller
                                 if (Storage::disk($chapter->getTarget()->getDisks())->exists($chapter->getTarget()->getRelativeFilePath())) {
                                     $delete = Storage::disk($chapter->getTarget()->getDisks())->delete($chapter->getTarget()->getRelativeFilePath());
                                     if (!$delete) {
-                                        throw new Exception('Error, delete "'.$chapter->getTarget()->getFullPath().'"]" is fails', 7000);
+                                        throw new Exception('Error, delete ['.$chapter->getTarget()->getFullPath().'] is fails', 7000);
                                     }
                                 }
                                 Storage::disk($chapter->getTarget()->getDisks())->put($chapter->getTarget()->getRelativeFilePath(), $chapter->getName()."\n");
@@ -308,6 +312,7 @@ class NovelController extends Controller
                                 foreach ($chapter->getContents() as $content) {
                                     Storage::disk($chapter->getTarget()->getDisks())->append($chapter->getTarget()->getRelativeFilePath(), $content."\n");
                                 }
+                                $chapter->getTarget()->checkFile();
 
                                 $fileConverter->getTarget()->checkFile();
                             }
@@ -330,11 +335,11 @@ class NovelController extends Controller
                             $fileConverter->getTarget()->checkFile();
                             $delete = Storage::disk($fileConverter->getSource()->getDisks())->delete($fileConverter->getSource()->getRelativeFilePath());
                             if (!$delete) {
-                                throw new Exception('Error, delete "'.$targetFilePath.'"]" is fails', 7000);
+                                throw new Exception('Error, delete ['.$targetFilePath.'] is fails', 7000);
                             }
                         }
                         else {
-                            throw new Exception('Error, copy "'.$sourceFilePath.'"]" to "'.$targetFilePath.'"', 7000);
+                            throw new Exception('Error, copy ['.$sourceFilePath.'] to ['.$targetFilePath.']', 7000);
                         }
                     }
                 }

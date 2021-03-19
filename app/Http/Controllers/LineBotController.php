@@ -122,8 +122,8 @@ class LineBotController extends Controller
                 $active = true;
                 $userIds = [
                     'Uf327dc13da3f951e3a0ef8176d0bf7ba',
-                    // 'U915bb59bf9a4a7116b524852b6b46008',
-                    // 'U378a83ff7b5b9229f1ec15abe7fab4a2',
+                    'U915bb59bf9a4a7116b524852b6b46008',
+                    'U378a83ff7b5b9229f1ec15abe7fab4a2',
                 ];
                 if (in_array($userId, $userIds) && $active) {
                     // Text message
@@ -133,6 +133,7 @@ class LineBotController extends Controller
                             case "ไอกิต":
                             case "พี่กิต":
                             case "พี่เพ้" :
+                            case "ไอตี๋" :
                                 $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder("ไอควายยย ยย ย ยยยย");
                                 break;
                             case "ไป ไป ไป ไป" :
