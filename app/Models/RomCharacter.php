@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class RomCharacter extends Model
 {
     protected $table = 'rom_characters';
+    protected $visible = [
+        'id',
+        'key',
+        'name',
+    ];
     protected $casts = [];
 
     public function getId()
@@ -40,5 +45,27 @@ class RomCharacter extends Model
     public function user()
     {
         return $this->belongsTo(LineUser::class, 'line_user_id', 'id');
+    }
+
+    /**
+     * Get the "Rom Job" that owns the "Rom Character".
+     */
+    public function job()
+    {
+        return $this->belongsTo(RomJob::class, 'rom_job_id', 'id');
+    }
+
+    public function toArray()
+    {
+        $column = null;
+        foreach ($this->getVisible() as $attribute) {
+            $column[$attribute] = $this->getAttribute($attribute);
+        }
+        $column['job'] = null;
+        if (!$this->job()->get()->isEmpty() && $this->job()->get()->count() > 0) {
+            $column['job'] = $this->job()->get()->toArray()[0];
+        }
+
+        return $column;
     }
 }

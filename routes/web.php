@@ -15,6 +15,9 @@
 Route::get('/', 'DefaultController@index')->name('default.index');
 Route::get('/sheet', 'DefaultController@sheet')->name('default.sheet');
 Route::get('/collection', 'DefaultController@collection')->name('default.collection');
+Route::get('/party', 'DefaultController@party')->name('default.party');
+Route::get('/regx', 'DefaultController@regx')->name('default.string');
+
 
 Route::post('/bot', 'LineBotController@index')->name('line.bot.index');
 

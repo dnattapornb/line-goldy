@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LineUser;
 use App\Models\RomCharacter;
+use App\Models\RomJob;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -37,24 +38,8 @@ class UserController extends Controller
     public function index()
     {
         $users = LineUser::all();
-        $_users = null;
-        if ($users->count()) {
-            $_users = [];
-            foreach ($users as $user) {
-                $_user = $user->toArray();
-                if (!isset($_user['characters']) || empty($_user['characters'])) {
-                    $_user['characters'] = [];
-                }
-                $characters = $user->characters()->get();
-                if ($characters->count()) {
-                    $_user['characters'] = $characters->toArray();
-                }
 
-                array_push($_users, $_user);
-            }
-        }
-
-        return Response()->json($_users);
+        return Response()->json($users->toArray());
     }
 
     /**
@@ -64,15 +49,9 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = [];
-        foreach ($this->users as $item) {
-            if ($item['id'] === $id) {
-                $user = $item;
-                break;
-            }
-        }
+        $user = LineUser::where('key', $id)->first();
 
-        return Response()->json($user);
+        return Response()->json($user->toArray());
     }
 
     /**
@@ -114,6 +93,17 @@ class UserController extends Controller
 
         $characters = $user->characters()->get();
         dump($characters, $characters->count(), $characters->toArray());
+
+        /** @var \App\Models\RomCharacter[] $characters */
+        foreach ($characters as $character) {
+            /** @var \Illuminate\Support\Collection $user */
+            $user = $character->user()->get();
+            // $userName = $character->user->name;
+            $job = $character->job()->get();
+            // $jobName = $character->job->name;
+            dd($user->isEmpty(), $job->isEmpty());
+        }
+        exit();
 
         // $this->save_character($user);
         // $this->associate_character($user);

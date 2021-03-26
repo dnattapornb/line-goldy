@@ -10,6 +10,15 @@ class LineUser extends Model
     use SoftDeletes;
 
     protected $table = 'line_users';
+    protected $visible = [
+        'id',
+        'key',
+        'name',
+        'display_name',
+        'picture_url',
+        'published',
+        'is_friend',
+    ];
     protected $casts = [
         'published' => 'boolean',
         'is_friend' => 'boolean',
@@ -86,5 +95,16 @@ class LineUser extends Model
     public function characters()
     {
         return $this->hasMany(RomCharacter::class, 'line_user_id');
+    }
+
+    public function toArray()
+    {
+        $column = null;
+        foreach ($this->getVisible() as $attribute) {
+            $column[$attribute] = $this->getAttribute($attribute);
+        }
+        $column['characters'] = $this->characters()->get()->toArray();
+
+        return $column;
     }
 }
