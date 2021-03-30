@@ -117,7 +117,7 @@ class LineBotController extends Controller
                 }
 
                 $active = true;
-                if ($active || $this->permitUser($userId)) {
+                if ($active && $this->permitUser($userId)) {
                     // Text message
                     if (($event instanceof \LINE\LINEBot\Event\MessageEvent\TextMessage)) {
                         $messageText = strtolower(trim($event->getText()));
@@ -130,7 +130,7 @@ class LineBotController extends Controller
                                     $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($messages);
                                 }
                                 else {
-                                    $img_url = "https://i1.sndcdn.com/artworks-000503353920-ip1xbw-t500x500.jpg";
+                                    $img_url = PUBLIC_URL."/storage_dummy/images/go-0.jpg";
                                     $outputText = new \LINE\LINEBot\MessageBuilder\ImageMessageBuilder($img_url, $img_url);
                                 }
                             }
@@ -144,10 +144,17 @@ class LineBotController extends Controller
                         }
                         else {
                             switch ($messageText) {
+                                case "ตาย" :
+                                {
+                                    $i = rand(2, 10);
+                                    $sound_url = env('PUBLIC_URL', null)."/storage_dummy/sounds/na_kom/".$i."_kills.ogg";
+                                    $outputText = new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder($sound_url, 6000);
+                                    break;
+                                }
                                 case "ไอบาส" :
                                 {
-                                    $audi_utl = "https://ae09d3af3508.ngrok.io/line-goldy/public/get_it_on.ogg";
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder($audi_utl, 6000);
+                                    $sound_url = env('PUBLIC_URL', null)."/storage_dummy/sounds/na_kom/get_it_on.ogg";
+                                    $outputText = new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder($sound_url, 6000);
                                     break;
                                 }
                                 case "party" :
@@ -306,14 +313,14 @@ class LineBotController extends Controller
 
     private function permitUser($userId)
     {
-        return true;
-
         $userIds = [
             'Uf327dc13da3f951e3a0ef8176d0bf7ba',
-            'U915bb59bf9a4a7116b524852b6b46008',
-            'U378a83ff7b5b9229f1ec15abe7fab4a2',
+            'Udec9682fee45c7021c041ad8096853c4',
             'U13cf37536ff4889e8a36cfb0b5ba5423',
-            'Uc750f0ec197429b3b38762a4b3cf4ba2',
+            'U4b60a459752c5d1cb6a3a8f3f68869df',
+            'U915bb59bf9a4a7116b524852b6b46008',
+            'Ua9d026c30844d82218631efcb70b88c8',
+            'U378a83ff7b5b9229f1ec15abe7fab4a2',
         ];
         if (in_array($userId, $userIds)) {
             return true;
@@ -340,7 +347,7 @@ class LineBotController extends Controller
         }
 
         /* ตัวเหีี๊ย */
-        $pattern = '/(ไอ|พี่|น้อง)(กิต|ตี๋|เพ้|เป้)/i';
+        $pattern = '/(ไอ|พี่|น้อง)(กิต|ตี๋|เพ้|เป้|อัต)/i';
         preg_match($pattern, $subject, $matches);
         if (!empty($matches)) {
             $data['success'] = true;
