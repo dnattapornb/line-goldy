@@ -130,7 +130,7 @@ class LineBotController extends Controller
                                     $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($messages);
                                 }
                                 else {
-                                    $img_url = PUBLIC_URL."/storage_dummy/images/go-0.jpg";
+                                    $img_url = env('PUBLIC_URL', null)."/storage_dummy/images/go-0.jpg";
                                     $outputText = new \LINE\LINEBot\MessageBuilder\ImageMessageBuilder($img_url, $img_url);
                                 }
                             }
