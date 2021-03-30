@@ -13,17 +13,14 @@ use Symfony\Component\Yaml\Yaml;
 
 use Revolution\Google\Sheets\Facades\Sheets;
 
-define('LINE_MESSAGING_API_CHANNEL_SECRET', '212b26f1295fe80f1d65a747da673b43');
-define('LINE_MESSAGING_API_CHANNEL_TOKEN', '090AaY2d19eXiMqeQUatdwfP35oPAEFUnk2NaJOUqcfguCqckmPyGRPaW581eQoHvcE/q+bE9nuO0gfyr59eOGsi1KqT2AI+z3f+gdkSpf58EAAy2wtxO9NJsXllhnzdBkRkcAXpsSVh0VIPSBTfuAdB04t89/1O/w1cDnyilFU=');
-
 class LineBotController extends Controller
 {
     public function index()
     {
         Log::info('LINE_BOT.Start => ');
 
-        $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(LINE_MESSAGING_API_CHANNEL_TOKEN);
-        $bot = new \LINE\LINEBot($httpClient, ['channelSecret' => LINE_MESSAGING_API_CHANNEL_SECRET]);
+        $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(env('LINE_MESSAGING_API_CHANNEL_TOKEN', null));
+        $bot = new \LINE\LINEBot($httpClient, ['channelSecret' => env('LINE_MESSAGING_API_CHANNEL_SECRET', null)]);
         $signature = $_SERVER['HTTP_'.\LINE\LINEBot\Constant\HTTPHeader::LINE_SIGNATURE];
 
         try {
@@ -126,10 +123,10 @@ class LineBotController extends Controller
                         $messageText = strtolower(trim($event->getText()));
                         $validator = $this->msgValidator($messageText);
                         Log::info('LINE_BOT.TextMessage(validator) => ', $validator);
-                        if($validator['success']) {
-                            if($validator['text'] === 'ไป') {
+                        if ($validator['success']) {
+                            if ($validator['text'] === 'ไป') {
                                 $messages = $this->getMsgRandom();
-                                if($messages !== 'img') {
+                                if ($messages !== 'img') {
                                     $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($messages);
                                 }
                                 else {
@@ -137,7 +134,7 @@ class LineBotController extends Controller
                                     $outputText = new \LINE\LINEBot\MessageBuilder\ImageMessageBuilder($img_url, $img_url);
                                 }
                             }
-                            elseif($validator['text'] === 'วัว') {
+                            elseif ($validator['text'] === 'วัว') {
                                 $messages = "ไอควายยย ยย ย ยยยย";
                                 $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($messages);
                             }
@@ -147,7 +144,8 @@ class LineBotController extends Controller
                         }
                         else {
                             switch ($messageText) {
-                                case "ไอบาส" : {
+                                case "ไอบาส" :
+                                {
                                     $audi_utl = "https://ae09d3af3508.ngrok.io/line-goldy/public/get_it_on.ogg";
                                     $outputText = new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder($audi_utl, 6000);
                                     break;
@@ -220,8 +218,8 @@ class LineBotController extends Controller
                     // Image message
                     elseif ($event instanceof \LINE\LINEBot\Event\MessageEvent\ImageMessage) {
                         Log::info('LINE_BOT.Image(ImageMessage) => ', [
-                            'contentProvider' => $event->getContentProvider(),
-                            'contentProvider.previewImageUrl' => $event->getContentProvider()->getPreviewImageUrl(),
+                            'contentProvider'                    => $event->getContentProvider(),
+                            'contentProvider.previewImageUrl'    => $event->getContentProvider()->getPreviewImageUrl(),
                             'contentProvider.originalContentUrl' => $event->getContentProvider()->getOriginalContentUrl(),
                         ]);
                         continue;

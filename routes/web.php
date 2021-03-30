@@ -11,26 +11,28 @@
 |
 */
 
-
+/* Test */
 Route::get('/', 'DefaultController@index')->name('default.index');
 Route::get('/sheet', 'DefaultController@sheet')->name('default.sheet');
 Route::get('/collection', 'DefaultController@collection')->name('default.collection');
 Route::get('/party', 'DefaultController@party')->name('default.party');
 Route::get('/regx', 'DefaultController@regx')->name('default.string');
 
-
+/* Line Bot */
 Route::post('/bot', 'LineBotController@index')->name('line.bot.index');
 
+/* User Line */
 Route::get('/user', function () {
     return view('user/index');
 });
-
-Route::get('/test', 'UserController@test')->name('test');
 
 Route::resource('users', UserController::class)->only([
     'index', 'show', 'update', 'destroy'
 ]);
 
+Route::get('/test', 'UserController@test')->name('test');
+
+/* Novel */
 Route::get('/novel', 'NovelController@index')->name('novel.gets');
 Route::get('/novel/{code}', 'NovelController@show')->name('novel.ebook');
 Route::get('/file', 'NovelController@file')->name('novel.files');
