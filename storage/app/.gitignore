@@ -1,9 +1,6 @@
 *
-!public/
 !.gitignore
-
-!configs/
-!configs/*
+!public/
 
 !models/
 !models/*
