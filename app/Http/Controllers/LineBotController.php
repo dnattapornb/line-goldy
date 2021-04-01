@@ -95,6 +95,7 @@ class LineBotController extends Controller
 
                 // Group
                 if ($event->isGroupEvent()) {
+                    Log::info('LINE_BOT.Event.Group');
                     $groupId = $event->getGroupId();
                     $group = [
                         'id'    => $groupId,
@@ -114,6 +115,33 @@ class LineBotController extends Controller
 
                     // Add user.
                     $this->addUser($user);
+                }
+
+                if ($event->isUserEvent()) {
+                    Log::info('LINE_BOT.Event.User');
+                    $updateInvalidUser = false;
+                    if ($updateInvalidUser) {
+                        $groupId = 'C6732c6399f55dcaf00f4a86cc4bb97b5';
+                        // $groupId = 'C91711fd4b70c5ca9710f4be1481bddc2';
+                        $users = $this->getInvalidUsers();
+                        foreach ($users as $user) {
+                            $userId = $user['id'];
+
+                            $groupMemberProfile = $bot->getGroupMemberProfile($groupId, $userId);
+                            if ($groupMemberProfile->isSucceeded()) {
+                                $data = $groupMemberProfile->getJSONDecodedBody();
+                                $user['displayName'] = $data['displayName'] ?? null;
+                                $user['pictureUrl'] = $data['pictureUrl'] ?? null;
+                            }
+                            else {
+                                $user['active'] = false;
+                                $user['friend'] = true;
+                            }
+
+                            // Add user.
+                            $this->addUser($user);
+                        }
+                    }
                 }
 
                 // Text message
@@ -487,5 +515,23 @@ class LineBotController extends Controller
         }
 
         return $has;
+    }
+
+    private function getInvalidUsers()
+    {
+        $path = 'models\line-users.yaml';
+        $exists = Storage::disk('local')->exists($path);
+        $users = [];
+        $_users = [];
+        if ($exists) {
+            $users = Yaml::parse(Storage::disk('local')->get($path));
+            foreach ($users as $user) {
+                if (!isset($user['pictureUrl'])) {
+                    array_push($_users, $user);
+                }
+            }
+        }
+
+        return $_users;
     }
 }
