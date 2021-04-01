@@ -57,9 +57,7 @@ class DefaultController extends Controller
             $tests->add($test);
         }
 
-        dd($tests->toArray());
-        dd($tests->toJson());
-        exit();
+        dd($tests->toJson(), $tests->toArray());
 
         // return response($tests->toJson());
         // return response()->json($tests->toArray());

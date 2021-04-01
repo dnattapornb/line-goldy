@@ -64,7 +64,7 @@ class LineBotController extends Controller
             Log::error('LINE_BOT : parseEventRequest failed. CurlExecutionException => ', var_export($e, true));
         }
 
-        /** @var \LINE\LINEBot\Event\MessageEvent\TextMessage[] $events */
+        /** @var \LINE\LINEBot\Event\BaseEvent[] $events */
         if (isset($events) && !empty($events)) {
             foreach ($events as $event) {
                 $messageBuilder = null;
@@ -79,8 +79,7 @@ class LineBotController extends Controller
                 ];
 
                 // User
-                $store = true;
-                if (isset($userId) && !empty($userId) && $store) {
+                if (isset($userId) && !empty($userId)) {
                     $userProfile = $bot->getProfile($userId);
                     Log::info('LINE_BOT.User => ', $userProfile->getJSONDecodedBody());
                     if ($userProfile->isSucceeded()) {
@@ -90,45 +89,8 @@ class LineBotController extends Controller
                         $user['friend'] = true;
                     }
 
-                    $path = 'models\line-users.yaml';
-                    $exists = Storage::disk('local')->exists($path);
-                    $users = [];
-                    if ($exists) {
-                        $users = Yaml::parse(Storage::disk('local')->get($path));
-                    }
-
-                    if (isset($users) && !empty($users) && $this->hasUser($users, $userId)) {
-                        foreach ($users as &$_user) {
-                            if ($_user['id'] === $userId) {
-                                $rs = array_diff($user, $_user);
-                                if (!empty($rs)) {
-                                    if (isset($rs['displayName'])) {
-                                        if (!empty($rs['displayName'])) {
-                                            $_user['displayName'] = $user['displayName'];
-                                        }
-                                    }
-
-                                    if (isset($rs['pictureUrl'])) {
-                                        if (!empty($rs['pictureUrl'])) {
-                                            $_user['pictureUrl'] = $user['pictureUrl'];
-                                        }
-                                    }
-
-                                    if (isset($rs['friend'])) {
-                                        if (!empty($rs['friend'])) {
-                                            $_user['friend'] = $user['friend'];
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    else {
-                        array_push($users, $user);
-                    }
-
-                    Storage::disk('local')->put($path, Yaml::dump($users));
+                    // Add user.
+                    // $this->addUser($user);
                 }
 
                 // Group
@@ -140,7 +102,18 @@ class LineBotController extends Controller
                         'users' => [],
                     ];
                     // $groupMemberIds = $bot->getGroupMemberIds($groupId);
-                    // Log::info('LINE_BOT.Group => ', $groupMemberIds->getJSONDecodedBody());
+                    // Log::info('LINE_BOT.GroupMemberIds => ', [$groupMemberIds, $groupMemberIds->getJSONDecodedBody()]);
+
+                    $groupMemberProfile = $bot->getGroupMemberProfile($groupId, $userId);
+                    Log::info('LINE_BOT.GroupMemberProfile => ', $groupMemberProfile->getJSONDecodedBody());
+                    if ($groupMemberProfile->isSucceeded()) {
+                        $data = $groupMemberProfile->getJSONDecodedBody();
+                        $user['displayName'] = $data['displayName'] ?? null;
+                        $user['pictureUrl'] = $data['pictureUrl'] ?? null;
+                    }
+
+                    // Add user.
+                    $this->addUser($user);
                 }
 
                 // Text message
@@ -321,31 +294,18 @@ class LineBotController extends Controller
         return response('It works!');
     }
 
-    private function hasUser($users, $userId)
-    {
-        $has = false;
-        foreach ($users as $user) {
-            if ($user['id'] == $userId) {
-                $has = true;
-                break;
-            }
-        }
-
-        return $has;
-    }
-
     private function permitUser($userId)
     {
         $userIds = [
             'Uf327dc13da3f951e3a0ef8176d0bf7ba',// boy
-            'Udec9682fee45c7021c041ad8096853c4',// poon
-            'U13cf37536ff4889e8a36cfb0b5ba5423',// krit
-            'U4b60a459752c5d1cb6a3a8f3f68869df',// tong
-            'U915bb59bf9a4a7116b524852b6b46008',// tee
-            'Ua9d026c30844d82218631efcb70b88c8',// bas
-            'Uc750f0ec197429b3b38762a4b3cf4ba2',// att
-            'U5aa838fd509e5ff054ca9c204ec3637f',// pe
-            'U378a83ff7b5b9229f1ec15abe7fab4a2',// chom
+            // 'Udec9682fee45c7021c041ad8096853c4',// poon
+            // 'U13cf37536ff4889e8a36cfb0b5ba5423',// krit
+            // 'U4b60a459752c5d1cb6a3a8f3f68869df',// tong
+            // 'U915bb59bf9a4a7116b524852b6b46008',// tee
+            // 'Ua9d026c30844d82218631efcb70b88c8',// bas
+            // 'Uc750f0ec197429b3b38762a4b3cf4ba2',// att
+            // 'U5aa838fd509e5ff054ca9c204ec3637f',// pe
+            // 'U378a83ff7b5b9229f1ec15abe7fab4a2',// chom
         ];
         if (in_array($userId, $userIds)) {
             return true;
@@ -471,5 +431,61 @@ class LineBotController extends Controller
         $rand_keys = array_rand($msg, 1);
 
         return $msg[$rand_keys];
+    }
+
+    private function addUser($data)
+    {
+        $path = 'models\line-users.yaml';
+        $exists = Storage::disk('local')->exists($path);
+        $users = [];
+        if ($exists) {
+            $users = Yaml::parse(Storage::disk('local')->get($path));
+        }
+
+        if (isset($users) && !empty($users) && $this->hasUser($users, $data['id'])) {
+            foreach ($users as &$user) {
+                if ($user['id'] === $data['id']) {
+                    $rs = array_diff($data, $user);
+                    if (!empty($rs)) {
+                        if (isset($rs['displayName'])) {
+                            if (!empty($rs['displayName'])) {
+                                $user['displayName'] = $data['displayName'];
+                            }
+                        }
+
+                        if (isset($rs['pictureUrl'])) {
+                            if (!empty($rs['pictureUrl'])) {
+                                $user['pictureUrl'] = $data['pictureUrl'];
+                            }
+                        }
+
+                        if (isset($rs['friend'])) {
+                            if (!empty($rs['friend'])) {
+                                $user['friend'] = $data['friend'];
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        else {
+            array_push($users, $data);
+        }
+
+        Storage::disk('local')->put($path, Yaml::dump($users));
+    }
+
+    private function hasUser($users, $userId)
+    {
+        $has = false;
+        foreach ($users as $user) {
+            if ($user['id'] == $userId) {
+                $has = true;
+                break;
+            }
+        }
+
+        return $has;
     }
 }
