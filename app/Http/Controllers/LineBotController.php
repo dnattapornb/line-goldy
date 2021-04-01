@@ -326,14 +326,14 @@ class LineBotController extends Controller
     {
         $userIds = [
             'Uf327dc13da3f951e3a0ef8176d0bf7ba',// boy
-            // 'Udec9682fee45c7021c041ad8096853c4',// poon
-            // 'U13cf37536ff4889e8a36cfb0b5ba5423',// krit
-            // 'U4b60a459752c5d1cb6a3a8f3f68869df',// tong
-            // 'U915bb59bf9a4a7116b524852b6b46008',// tee
-            // 'Ua9d026c30844d82218631efcb70b88c8',// bas
-            // 'Uc750f0ec197429b3b38762a4b3cf4ba2',// att
-            // 'U5aa838fd509e5ff054ca9c204ec3637f',// pe
-            // 'U378a83ff7b5b9229f1ec15abe7fab4a2',// chom
+            'Udec9682fee45c7021c041ad8096853c4',// poon
+            'U13cf37536ff4889e8a36cfb0b5ba5423',// krit
+            'U4b60a459752c5d1cb6a3a8f3f68869df',// tong
+            'U915bb59bf9a4a7116b524852b6b46008',// tee
+            'Ua9d026c30844d82218631efcb70b88c8',// bas
+            'Uc750f0ec197429b3b38762a4b3cf4ba2',// att
+            'U5aa838fd509e5ff054ca9c204ec3637f',// pe
+            'U378a83ff7b5b9229f1ec15abe7fab4a2',// chom
         ];
         if (in_array($userId, $userIds)) {
             return true;

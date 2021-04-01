@@ -49,24 +49,38 @@
                 </v-btn>
             </template>
             <template v-slot:expanded-item="{ headers, item }">
-                <td :colspan="headers.length">
-                    <div class="row sp-details">
-                        <div class="col-4 text-right">
-                            <v-text-field
-                                    label="Label"
-                            ></v-text-field>
-                        </div>
-                        <div class="col-4 text-right">
-                            <v-text-field
-                                    label="Label 1"
-                            ></v-text-field>
-                        </div>
-                        <div class="col-4 text-right">
-                            <v-text-field
-                                    label="Label 2"
-                            ></v-text-field>
-                        </div>
-                    </div>
+                <td :colspan="headers.length" style="padding: 0px !important;">
+                    <template>
+                        <v-simple-table>
+                            <template v-slot:default>
+                                <thead>
+                                <tr>
+                                    <th colspan="3"></th>
+                                    <th class="text-left">
+                                        Key (RoM)*
+                                    </th>
+                                    <th class="text-left">
+                                        Name
+                                    </th>
+                                    <th class="text-left">
+                                        Job
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr
+                                        v-for="item in item.characters"
+                                        :key="item.key"
+                                >
+                                    <td colspan="3"></td>
+                                    <td>{{ item.name }}</td>
+                                    <td>{{ item.key }}</td>
+                                    <td>{{ item.job.name }}</td>
+                                </tr>
+                                </tbody>
+                            </template>
+                        </v-simple-table>
+                    </template>
                 </td>
             </template>
 
