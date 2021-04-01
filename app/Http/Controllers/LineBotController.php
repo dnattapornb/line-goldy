@@ -11,6 +11,33 @@ use Illuminate\Support\Facades\URL;
 use Carbon\Carbon;
 use Symfony\Component\Yaml\Yaml;
 
+use LINE\LINEBot\Event\PostbackEvent;
+use LINE\LINEBot\Event\MessageEvent\TextMessage;
+use LINE\LINEBot\Event\MessageEvent\StickerMessage;
+use LINE\LINEBot\Event\MessageEvent\ImageMessage;
+use LINE\LINEBot\Event\MessageEvent\AudioMessage;
+use LINE\LINEBot\Event\MessageEvent\VideoMessage;
+use LINE\LINEBot\Event\MessageEvent\FileMessage;
+use LINE\LINEBot\Event\MessageEvent\LocationMessage;
+
+use LINE\LINEBot\MessageBuilder\TextMessageBuilder;
+use LINE\LINEBot\MessageBuilder\StickerMessageBuilder;
+use LINE\LINEBot\MessageBuilder\ImageMessageBuilder;
+use LINE\LINEBot\MessageBuilder\AudioMessageBuilder;
+use LINE\LINEBot\MessageBuilder\VideoMessageBuilder;
+use LINE\LINEBot\MessageBuilder\LocationMessageBuilder;
+use LINE\LINEBot\MessageBuilder\TemplateMessageBuilder;
+
+use LINE\LINEBot\TemplateActionBuilder;
+use LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder;
+use LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder;
+use LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder;
+
+use LINE\LINEBot\MessageBuilder\TemplateBuilder;
+use LINE\LINEBot\MessageBuilder\TemplateBuilder\ConfirmTemplateBuilder;
+use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselTemplateBuilder;
+use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder;
+
 use Revolution\Google\Sheets\Facades\Sheets;
 
 class LineBotController extends Controller
@@ -40,7 +67,7 @@ class LineBotController extends Controller
         /** @var \LINE\LINEBot\Event\MessageEvent\TextMessage[] $events */
         if (isset($events) && !empty($events)) {
             foreach ($events as $event) {
-                $outputText = null;
+                $messageBuilder = null;
                 $userId = $event->getUserId();
                 $user = [
                     'id'          => $userId,
@@ -116,178 +143,174 @@ class LineBotController extends Controller
                     // Log::info('LINE_BOT.Group => ', $groupMemberIds->getJSONDecodedBody());
                 }
 
-                $active = true;
-                if ($active && $this->permitUser($userId)) {
-                    // Text message
-                    if (($event instanceof \LINE\LINEBot\Event\MessageEvent\TextMessage)) {
-                        $messageText = strtolower(trim($event->getText()));
-                        $validator = $this->msgValidator($messageText);
+                // Text message
+                if (($event instanceof TextMessage)) {
+                    $messageText = strtolower(trim($event->getText()));
+                    if ($this->permitUser($userId)) {
+                        $validator = $this->msgPattern($messageText);
                         Log::info('LINE_BOT.TextMessage(validator) => ', $validator);
                         if ($validator['success']) {
                             if ($validator['text'] === 'ไป') {
                                 $messages = $this->getMsgRandom();
                                 if ($messages !== 'img') {
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($messages);
+                                    $messageBuilder = new TextMessageBuilder($messages);
                                 }
                                 else {
-                                    $img_url = env('PUBLIC_URL', null)."/storage_dummy/images/go-0.jpg";
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\ImageMessageBuilder($img_url, $img_url);
+                                    $img_url = env('PUBLIC_URL', null).'/storage_dummy/images/go-0.jpg';
+                                    $messageBuilder = new ImageMessageBuilder($img_url, $img_url);
                                 }
                             }
                             elseif ($validator['text'] === 'วัว') {
-                                $messages = "ไอควายยย ยย ย ยยยย";
-                                $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($messages);
+                                $messages = 'ไอควายยย ยย ย ยยยย';
+                                $messageBuilder = new TextMessageBuilder($messages);
                             }
                             else {
-                                $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder("อิ");
+                                $messageBuilder = new TextMessageBuilder('อิ');
                             }
                         }
-                        else {
-                            switch ($messageText) {
-                                case "ตาย" :
-                                {
-                                    $i = rand(2, 10);
-                                    $sound_url = env('PUBLIC_URL', null)."/storage_dummy/sounds/na_kom/".$i."_kills.ogg";
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder($sound_url, 6000);
-                                    break;
-                                }
-                                case "ไอบาส" :
-                                {
-                                    $sound_url = env('PUBLIC_URL', null)."/storage_dummy/sounds/na_kom/get_it_on.ogg";
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder($sound_url, 6000);
-                                    break;
-                                }
-                                case "party" :
-                                    $messages = $this->getParty();
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($messages);
-                                    break;
-                                case "text" :
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder("text message");
-                                    break;
-                                case "location" :
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\LocationMessageBuilder("Eiffel Tower", "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France", 48.858328, 2.294750);
-                                    break;
-                                case "button" :
-                                    $actions = [
-                                        // general message action
-                                        new \LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder("button 1", "text 1"),
-                                        // URL type action
-                                        new \LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder("Google", "http://www.google.com"),
-                                        // The following two are interactive actions
-                                        new \LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder("next page", "page=3"),
-                                        new \LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder("Previous", "page=1"),
-                                    ];
-                                    $img_url = "https://cdn.shopify.com/s/files/1/0379/7669/products/sampleset2_1024x1024.JPG?v=1458740363";
-                                    $button = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\ButtonTemplateBuilder("button text", "description", $img_url, $actions);
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\TemplateMessageBuilder("this message to use the phone to look to the Oh", $button);
-                                    break;
-                                case "carousel" :
-                                    $columns = [];
-                                    $img_url = "https://cdn.shopify.com/s/files/1/0379/7669/products/sampleset2_1024x1024.JPG?v=1458740363";
-                                    for ($i = 0; $i < 5; $i++) {
-                                        $actions = [
-                                            new \LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder("Add to Card", "action=carousel&button=".$i),
-                                            new \LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder("View", "http://www.google.com"),
-                                        ];
-                                        $column = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder("Title", "description", $img_url, $actions);
-                                        $columns[] = $column;
-                                    }
-                                    $carousel = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselTemplateBuilder($columns);
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\TemplateMessageBuilder("Carousel Demo", $carousel);
-                                    break;
-                                case "image" :
-                                    $img_url = "https://cdn.imageupload.workers.dev/6VqhfzZC_S__70852755.jpg";
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\ImageMessageBuilder($img_url, $img_url);
-                                    break;
-                                case "confirm" :
-                                    $actions = [
-                                        new \LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder("yes", "ans=y"),
-                                        new \LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder("no", "ans=N"),
-                                    ];
-                                    $button = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\ConfirmTemplateBuilder("problem", $actions);
-                                    $outputText = new \LINE\LINEBot\MessageBuilder\TemplateMessageBuilder("this message to use the phone to look to the Oh", $button);
-                                    break;
-                                default :
-                                    // $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder("demo command: text, location, button, confirm to test message template");
-                                    break;
+
+                        switch ($messageText) {
+                            case 'ไอบอย' :
+                                $messageBuilder = new TextMessageBuilder('คนดี ศรีภูเก็ต');
+                                break;
+                            case 'ตาย' :
+                            {
+                                $i = rand(2, 10);
+                                $sound_url = env('PUBLIC_URL', null).'/storage_dummy/sounds/na_kom/'.$i.'_kills.ogg';
+                                $messageBuilder = new AudioMessageBuilder($sound_url, 6000);
+                                break;
                             }
+                            case 'ไอบาส' :
+                            {
+                                $sound_url = env('PUBLIC_URL', null).'/storage_dummy/sounds/na_kom/get_it_on.ogg';
+                                $messageBuilder = new AudioMessageBuilder($sound_url, 6000);
+                                break;
+                            }
+                            case 'party' :
+                                $messages = $this->getParty();
+                                $messageBuilder = new TextMessageBuilder($messages);
+                                break;
+                            case 'location' :
+                                $messageBuilder = new LocationMessageBuilder('Eiffel Tower', 'Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France', 48.858328, 2.294750);
+                                break;
+                            case 'button' :
+                                $actions = [
+                                    // general message action
+                                    new TemplateActionBuilder\MessageTemplateActionBuilder('button 1', 'text 1'),
+                                    // URL type action
+                                    new TemplateActionBuilder\UriTemplateActionBuilder('Google', 'http://www.google.com'),
+                                    // The following two are interactive actions
+                                    new TemplateActionBuilder\PostbackTemplateActionBuilder('next page', 'page=3'),
+                                    new TemplateActionBuilder\PostbackTemplateActionBuilder('Previous', 'page=1'),
+                                ];
+                                $img_url = 'https://cdn.shopify.com/s/files/1/0379/7669/products/sampleset2_1024x1024.JPG?v=1458740363';
+                                $button = new TemplateBuilder\ButtonTemplateBuilder('button text', 'description', $img_url, $actions);
+                                $messageBuilder = new TemplateMessageBuilder('this message to use the phone to look to the Oh', $button);
+                                break;
+                            case 'carousel' :
+                                $columns = [];
+                                $img_url = 'https://cdn.shopify.com/s/files/1/0379/7669/products/sampleset2_1024x1024.JPG?v=1458740363';
+                                for ($i = 0; $i < 5; $i++) {
+                                    $actions = [
+                                        new TemplateActionBuilder\PostbackTemplateActionBuilder('Add to Card', 'action=carousel&button='.$i),
+                                        new TemplateActionBuilder\UriTemplateActionBuilder('View', 'http://www.google.com'),
+                                    ];
+                                    $column = new TemplateBuilder\CarouselColumnTemplateBuilder('Title', 'description', $img_url, $actions);
+                                    $columns[] = $column;
+                                }
+                                $carousel = new TemplateBuilder\CarouselTemplateBuilder($columns);
+                                $messageBuilder = new TemplateMessageBuilder('Carousel Demo', $carousel);
+                                break;
+                            case 'confirm' :
+                                $actions = [
+                                    new TemplateActionBuilder\PostbackTemplateActionBuilder('yes', 'ans=y'),
+                                    new TemplateActionBuilder\PostbackTemplateActionBuilder('no', 'ans=N'),
+                                ];
+                                $button = new TemplateBuilder\ConfirmTemplateBuilder('problem', $actions);
+                                $messageBuilder = new TemplateMessageBuilder('this message to use the phone to look to the Oh', $button);
+                                break;
+                            default :
+                                // $messageBuilder = new TextMessageBuilder('demo command: text, location, button, confirm to test message template');
+                                break;
                         }
                     }
-                    // Sticker message
-                    elseif ($event instanceof \LINE\LINEBot\Event\MessageEvent\StickerMessage) {
-                        Log::info('LINE_BOT.Sticker(StickerMessage) => ', [
-                            'packageId'           => $event->getPackageId(),
-                            'stickerId'           => $event->getStickerId(),
-                            'stickerResourceType' => $event->getStickerResourceType(),
-                        ]);
-                        continue;
-                    }
-                    // Image message
-                    elseif ($event instanceof \LINE\LINEBot\Event\MessageEvent\ImageMessage) {
-                        Log::info('LINE_BOT.Image(ImageMessage) => ', [
-                            'contentProvider'                    => $event->getContentProvider(),
-                            'contentProvider.previewImageUrl'    => $event->getContentProvider()->getPreviewImageUrl(),
-                            'contentProvider.originalContentUrl' => $event->getContentProvider()->getOriginalContentUrl(),
-                        ]);
-                        continue;
-                    }
-                    // File Event
-                    elseif ($event instanceof \LINE\LINEBot\Event\MessageEvent\FileMessage) {
-                        Log::info('LINE_BOT.File(FileMessage) => ', [
-                            'fileName' => $event->getFileName(),
-                            'fileSize' => $event->getFileSize(),
-                        ]);
-                        continue;
-                    }
-                    // Video message
-                    elseif ($event instanceof \LINE\LINEBot\Event\MessageEvent\VideoMessage) {
-                        Log::info('LINE_BOT.Video(VideoMessage) => ', [
-                            'duration'        => $event->getDuration(),
-                            'contentProvider' => $event->getContentProvider(),
-                        ]);
-                        continue;
-                    }
-                    // Audio message
-                    elseif ($event instanceof \LINE\LINEBot\Event\MessageEvent\AudioMessage) {
-                        Log::info('LINE_BOT.Audio(AudioMessage) => ', [
-                            'duration'        => $event->getDuration(),
-                            'contentProvider' => $event->getContentProvider(),
-                        ]);
-                        continue;
-                    }
-                    // Location Event
-                    elseif ($event instanceof \LINE\LINEBot\Event\MessageEvent\LocationMessage) {
-                        Log::info('LINE_BOT.Location(LocationMessage) => ', [
-                            'title'     => $event->getTitle(),
-                            'address'   => $event->getAddress(),
-                            'latitude'  => $event->getLatitude(),
-                            'longitude' => $event->getLongitude(),
-                        ]);
-                        continue;
-                    }
-                    // Postback Event
-                    elseif (($event instanceof \LINE\LINEBot\Event\PostbackEvent)) {
-                        Log::info('LINE_BOT.Postback(PostbackEvent) => ', [
-                            'postbackData'   => $event->getPostbackData(),
-                            'postbackParams' => $event->getPostbackParams(),
-                        ]);
-                        continue;
-                    }
+                }
+                // Sticker message
+                elseif ($event instanceof StickerMessage) {
+                    Log::info('LINE_BOT.Sticker(StickerMessage) => ', [
+                        'packageId'           => $event->getPackageId(),
+                        'stickerId'           => $event->getStickerId(),
+                        'stickerResourceType' => $event->getStickerResourceType(),
+                    ]);
+                    continue;
+                }
+                // Image message
+                elseif ($event instanceof ImageMessage) {
+                    Log::info('LINE_BOT.Image(ImageMessage) => ', [
+                        'contentProvider'                    => $event->getContentProvider(),
+                        'contentProvider.previewImageUrl'    => $event->getContentProvider()->getPreviewImageUrl(),
+                        'contentProvider.originalContentUrl' => $event->getContentProvider()->getOriginalContentUrl(),
+                    ]);
+                    continue;
+                }
+                // File Event
+                elseif ($event instanceof FileMessage) {
+                    Log::info('LINE_BOT.File(FileMessage) => ', [
+                        'fileName' => $event->getFileName(),
+                        'fileSize' => $event->getFileSize(),
+                    ]);
+                    continue;
+                }
+                // Video message
+                elseif ($event instanceof VideoMessage) {
+                    Log::info('LINE_BOT.Video(VideoMessage) => ', [
+                        'duration'        => $event->getDuration(),
+                        'contentProvider' => $event->getContentProvider(),
+                    ]);
+                    continue;
+                }
+                // Audio message
+                elseif ($event instanceof AudioMessage) {
+                    Log::info('LINE_BOT.Audio(AudioMessage) => ', [
+                        'duration'        => $event->getDuration(),
+                        'contentProvider' => $event->getContentProvider(),
+                    ]);
+                    continue;
+                }
+                // Location Event
+                elseif ($event instanceof LocationMessage) {
+                    Log::info('LINE_BOT.Location(LocationMessage) => ', [
+                        'title'     => $event->getTitle(),
+                        'address'   => $event->getAddress(),
+                        'latitude'  => $event->getLatitude(),
+                        'longitude' => $event->getLongitude(),
+                    ]);
+                    continue;
+                }
+                // Postback Event
+                elseif (($event instanceof PostbackEvent)) {
+                    Log::info('LINE_BOT.Postback(PostbackEvent) => ', [
+                        'postbackData'   => $event->getPostbackData(),
+                        'postbackParams' => $event->getPostbackParams(),
+                    ]);
+                    continue;
+                }
 
-                    if (isset($outputText) && !empty($outputText)) {
-                        $response = $bot->replyMessage($event->getReplyToken(), $outputText);
-                        // $response = $bot->pushMessage('U378a83ff7b5b9229f1ec15abe7fab4a2', $outputText);
+                if (isset($messageBuilder) && !empty($messageBuilder)) {
+                    $response = $bot->replyMessage($event->getReplyToken(), $messageBuilder);
 
-                        if ($response->isSucceeded()) {
-                            Log::info('LINE_BOT.End => Ok!');
+                    if ($response->isSucceeded()) {
+                        Log::info('LINE_BOT.End => Ok!');
 
-                            return response('Ok!');
-                        }
-                        else {
-                            Log::info('LINE_BOT.End => Fails!');
+                        return response('Ok!');
+                    }
+                    else {
+                        Log::info('LINE_BOT.End => Fails!', [
+                            $response->getRawBody(),
+                            $response->getHTTPStatus(),
+                        ]);
 
-                            return response($response->getRawBody(), $response->getHTTPStatus());
-                        }
+                        return response($response->getRawBody(), $response->getHTTPStatus());
                     }
                 }
             }
@@ -314,13 +337,15 @@ class LineBotController extends Controller
     private function permitUser($userId)
     {
         $userIds = [
-            'Uf327dc13da3f951e3a0ef8176d0bf7ba',
-            'Udec9682fee45c7021c041ad8096853c4',
-            'U13cf37536ff4889e8a36cfb0b5ba5423',
-            'U4b60a459752c5d1cb6a3a8f3f68869df',
-            'U915bb59bf9a4a7116b524852b6b46008',
-            'Ua9d026c30844d82218631efcb70b88c8',
-            'U378a83ff7b5b9229f1ec15abe7fab4a2',
+            'Uf327dc13da3f951e3a0ef8176d0bf7ba',// boy
+            'Udec9682fee45c7021c041ad8096853c4',// poon
+            'U13cf37536ff4889e8a36cfb0b5ba5423',// krit
+            'U4b60a459752c5d1cb6a3a8f3f68869df',// tong
+            'U915bb59bf9a4a7116b524852b6b46008',// tee
+            'Ua9d026c30844d82218631efcb70b88c8',// bas
+            'Uc750f0ec197429b3b38762a4b3cf4ba2',// att
+            'U5aa838fd509e5ff054ca9c204ec3637f',// pe
+            'U378a83ff7b5b9229f1ec15abe7fab4a2',// chom
         ];
         if (in_array($userId, $userIds)) {
             return true;
@@ -329,7 +354,7 @@ class LineBotController extends Controller
         return false;
     }
 
-    private function msgValidator($subject)
+    private function msgPattern($subject)
     {
         $data = [
             'success' => false,
@@ -347,7 +372,7 @@ class LineBotController extends Controller
         }
 
         /* ตัวเหีี๊ย */
-        $pattern = '/(ไอ|พี่|น้อง)(กิต|ตี๋|เพ้|เป้|อัต)/i';
+        $pattern = '/(ไอ|พี่|น้อง)?(กิต|ตี๋|เพ้|เป้|อัต|เต่า)$/i';
         preg_match($pattern, $subject, $matches);
         if (!empty($matches)) {
             $data['success'] = true;
@@ -395,16 +420,16 @@ class LineBotController extends Controller
         }
         // dd($outputArray);
 
-        $outputText = "";
-        $outputText .= $outputArray['header'];
-        $outputText .= "\n";
+        $message = "";
+        $message .= $outputArray['header'];
+        $message .= "\n";
         foreach ($outputArray['body'] as $body) {
-            $outputText .= "\n";
-            $outputText .= implode("\n", $body);
-            $outputText .= "\n";
+            $message .= "\n";
+            $message .= implode("\n", $body);
+            $message .= "\n";
         }
 
-        // $outputText = [];
+        // $message = [];
         // $header = '';
         // $header .= $outputArray['header'];
         // $header .= "\n";
@@ -414,10 +439,10 @@ class LineBotController extends Controller
         //     $content .= implode("\n", $body);
         //     $content .= "\n";
         //
-        //     $outputText[] = $content;
+        //     $message[] = $content;
         // }
 
-        return $outputText;
+        return $message;
     }
 
     private function getMsgRandom()
