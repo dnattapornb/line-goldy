@@ -83,11 +83,15 @@
                                 <td class="text-right">{{ character.key }}</td>
                                 <td class="text-right">{{ character.name }}</td>
                                 <td class="text-right"
-                                    v-if="character.guild_wars_job">{{ character.guild_wars_job.name }}
+                                    v-if="character.guild_wars_job">
+                                    <img :src="character.guild_wars_job.image"
+                                         style="height: 30px; padding-right: 5px; margin-bottom: -10px;"> {{ character.guild_wars_job.name }}
                                 </td>
                                 <td class="text-right text-red" v-else>-- N/A --</td>
                                 <td class="text-right"
-                                    v-if="character.activities_job">{{ character.activities_job.name }}
+                                    v-if="character.activities_job">
+                                    <img :src="character.activities_job.image"
+                                         style="height: 30px; padding-right: 5px; margin-bottom: -10px;"> {{ character.activities_job.name }}
                                 </td>
                                 <td class="text-right text-red" v-else>-- N/A --</td>
                                 <td>
@@ -220,7 +224,16 @@
                                                     label="Guild Wars Job"
                                                     v-model="character.data.guild_wars_job"
                                                     return-object
-                                            ></v-select>
+                                            >
+                                                <template v-slot:selection="{ item, index }">
+                                                    <img :src="item.image"
+                                                         style="height: 30px; padding-right: 5px;">{{ item.name }}
+                                                </template>
+                                                <template v-slot:item="{ item }">
+                                                    <img :src="item.image"
+                                                         style="height: 30px; padding-right: 5px;">{{ item.name }}
+                                                </template>
+                                            </v-select>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
                                             <v-select
@@ -231,7 +244,16 @@
                                                     label="Activities Job"
                                                     v-model="character.data.activities_job"
                                                     return-object
-                                            ></v-select>
+                                            >
+                                                <template v-slot:selection="{ item, index }">
+                                                    <img :src="item.image"
+                                                         style="height: 30px; padding-right: 5px;">{{ item.name }}
+                                                </template>
+                                                <template v-slot:item="{ item }">
+                                                    <img :src="item.image"
+                                                         style="height: 30px; padding-right: 5px;">{{ item.name }}
+                                                </template>
+                                            </v-select>
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -380,7 +402,7 @@ export default {
             return this.user.key === null ? 'new user' : 'edit user';
         },
         characterDialogTitle() {
-            return this.user.key === null ? 'new character' : 'edit character';
+            return this.character.key === null ? 'new character' : 'edit character';
         },
     },
     watch: {

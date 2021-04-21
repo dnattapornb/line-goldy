@@ -53,6 +53,7 @@ class RomJob extends Model
         foreach ($this->getVisible() as $attribute) {
             $column[$attribute] = $this->getAttribute($attribute);
         }
+        $column['image'] = \Storage::disk('heroku')->url('images/jobs/'.$column['id'].'.png');
 
         return $column;
     }

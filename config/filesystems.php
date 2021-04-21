@@ -69,6 +69,13 @@ return [
             'root'   => env('DOWNLOAD_LOCATION'),
         ],
 
+        'heroku' => [
+            'driver'     => 'local',
+            'root'       => storage_path('app/public'),
+            'url'        => env('APP_URL').'/__storage',
+            'visibility' => 'public',
+        ],
+
     ],
 
 ];

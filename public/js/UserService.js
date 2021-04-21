@@ -2212,6 +2212,28 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'UserTable',
   filters: {
@@ -2333,7 +2355,7 @@ __webpack_require__.r(__webpack_exports__);
       return this.user.key === null ? 'new user' : 'edit user';
     },
     characterDialogTitle: function characterDialogTitle() {
-      return this.user.key === null ? 'new character' : 'edit character';
+      return this.character.key === null ? 'new character' : 'edit character';
     }
   },
   watch: {
@@ -39023,11 +39045,24 @@ var render = function() {
                                                 "td",
                                                 { staticClass: "text-right" },
                                                 [
+                                                  _c("img", {
+                                                    staticStyle: {
+                                                      height: "30px",
+                                                      "padding-right": "5px",
+                                                      "margin-bottom": "-10px"
+                                                    },
+                                                    attrs: {
+                                                      src:
+                                                        character.guild_wars_job
+                                                          .image
+                                                    }
+                                                  }),
                                                   _vm._v(
-                                                    _vm._s(
-                                                      character.guild_wars_job
-                                                        .name
-                                                    ) +
+                                                    " " +
+                                                      _vm._s(
+                                                        character.guild_wars_job
+                                                          .name
+                                                      ) +
                                                       "\n                            "
                                                   )
                                                 ]
@@ -39046,11 +39081,24 @@ var render = function() {
                                                 "td",
                                                 { staticClass: "text-right" },
                                                 [
+                                                  _c("img", {
+                                                    staticStyle: {
+                                                      height: "30px",
+                                                      "padding-right": "5px",
+                                                      "margin-bottom": "-10px"
+                                                    },
+                                                    attrs: {
+                                                      src:
+                                                        character.activities_job
+                                                          .image
+                                                    }
+                                                  }),
                                                   _vm._v(
-                                                    _vm._s(
-                                                      character.activities_job
-                                                        .name
-                                                    ) +
+                                                    " " +
+                                                      _vm._s(
+                                                        character.activities_job
+                                                          .name
+                                                      ) +
                                                       "\n                            "
                                                   )
                                                 ]
@@ -39608,6 +39656,51 @@ var render = function() {
                                                 label: "Guild Wars Job",
                                                 "return-object": ""
                                               },
+                                              scopedSlots: _vm._u([
+                                                {
+                                                  key: "selection",
+                                                  fn: function(ref) {
+                                                    var item = ref.item
+                                                    var index = ref.index
+                                                    return [
+                                                      _c("img", {
+                                                        staticStyle: {
+                                                          height: "30px",
+                                                          "padding-right": "5px"
+                                                        },
+                                                        attrs: {
+                                                          src: item.image
+                                                        }
+                                                      }),
+                                                      _vm._v(
+                                                        _vm._s(item.name) +
+                                                          "\n                                            "
+                                                      )
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  key: "item",
+                                                  fn: function(ref) {
+                                                    var item = ref.item
+                                                    return [
+                                                      _c("img", {
+                                                        staticStyle: {
+                                                          height: "30px",
+                                                          "padding-right": "5px"
+                                                        },
+                                                        attrs: {
+                                                          src: item.image
+                                                        }
+                                                      }),
+                                                      _vm._v(
+                                                        _vm._s(item.name) +
+                                                          "\n                                            "
+                                                      )
+                                                    ]
+                                                  }
+                                                }
+                                              ]),
                                               model: {
                                                 value:
                                                   _vm.character.data
@@ -39651,6 +39744,51 @@ var render = function() {
                                                 label: "Activities Job",
                                                 "return-object": ""
                                               },
+                                              scopedSlots: _vm._u([
+                                                {
+                                                  key: "selection",
+                                                  fn: function(ref) {
+                                                    var item = ref.item
+                                                    var index = ref.index
+                                                    return [
+                                                      _c("img", {
+                                                        staticStyle: {
+                                                          height: "30px",
+                                                          "padding-right": "5px"
+                                                        },
+                                                        attrs: {
+                                                          src: item.image
+                                                        }
+                                                      }),
+                                                      _vm._v(
+                                                        _vm._s(item.name) +
+                                                          "\n                                            "
+                                                      )
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  key: "item",
+                                                  fn: function(ref) {
+                                                    var item = ref.item
+                                                    return [
+                                                      _c("img", {
+                                                        staticStyle: {
+                                                          height: "30px",
+                                                          "padding-right": "5px"
+                                                        },
+                                                        attrs: {
+                                                          src: item.image
+                                                        }
+                                                      }),
+                                                      _vm._v(
+                                                        _vm._s(item.name) +
+                                                          "\n                                            "
+                                                      )
+                                                    ]
+                                                  }
+                                                }
+                                              ]),
                                               model: {
                                                 value:
                                                   _vm.character.data
