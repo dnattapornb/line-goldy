@@ -24,9 +24,9 @@ class RomController extends Controller
      */
     public function indexCharacters()
     {
-        $jobs = RomCharacter::all();
+        $characters = RomCharacter::all();
 
-        return Response()->json($jobs->toArray());
+        return Response()->json($characters->toArray());
     }
 
     /**
@@ -36,9 +36,10 @@ class RomController extends Controller
      */
     public function showCharacters($key)
     {
-        $job = RomCharacter::where('key', $key)->first();
+        /** @var RomCharacter $character */
+        $character = RomCharacter::where('key', $key)->first();
 
-        return Response()->json($job->toArray());
+        return Response()->json($character->toArray());
     }
 
     /**
@@ -58,6 +59,7 @@ class RomController extends Controller
      */
     public function showJobs($id)
     {
+        /** @var RomJob $job */
         $job = RomJob::find($id);
 
         return Response()->json($job->toArray());

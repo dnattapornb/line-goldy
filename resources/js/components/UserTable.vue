@@ -65,7 +65,10 @@
                                     Name
                                 </th>
                                 <th class="text-right">
-                                    Job
+                                    Guild Wars Job
+                                </th>
+                                <th class="text-right">
+                                    Activities Job
                                 </th>
                                 <th>
                                     <v-btn small class="ma-2" color="primary" dark @click="addCharacter(item.key)">
@@ -79,8 +82,14 @@
                             <tr v-for="character in item.characters" :key="character.id">
                                 <td class="text-right">{{ character.key }}</td>
                                 <td class="text-right">{{ character.name }}</td>
-                                <td class="text-right" v-if="character.job">{{ character.job.name }}</td>
-                                <td class="text-right" v-else>Undefined or invalid job!</td>
+                                <td class="text-right"
+                                    v-if="character.guild_wars_job">{{ character.guild_wars_job.name }}
+                                </td>
+                                <td class="text-right text-red" v-else>-- N/A --</td>
+                                <td class="text-right"
+                                    v-if="character.activities_job">{{ character.activities_job.name }}
+                                </td>
+                                <td class="text-right text-red" v-else>-- N/A --</td>
                                 <td>
                                     <v-btn small
                                            class="ma-2"
@@ -95,7 +104,7 @@
                             </tbody>
                             <tbody v-else>
                             <tr>
-                                <td colspan="4" class="text-center">N/A</td>
+                                <td colspan="5" class="text-center">-- N/A --</td>
                             </tr>
                             </tbody>
                         </template>
@@ -192,7 +201,7 @@
                             <v-card-text>
                                 <v-container>
                                     <v-row>
-                                        <v-col cols="12">
+                                        <v-col cols="12" sm="6" md="6">
                                             <v-text-field v-model="character.data.key"
                                                           label="Key (Character)*"
                                                           required
@@ -204,12 +213,23 @@
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
                                             <v-select
-                                                    :hint="`${character.data.job.name}, ${character.data.job.label}`"
+                                                    :hint="`${character.data.guild_wars_job.name}, ${character.data.guild_wars_job.label}`"
                                                     :items="jobs"
                                                     item-text="name"
                                                     item-value="id"
-                                                    label="Jobs"
-                                                    v-model="character.data.job"
+                                                    label="Guild Wars Job"
+                                                    v-model="character.data.guild_wars_job"
+                                                    return-object
+                                            ></v-select>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-select
+                                                    :hint="`${character.data.activities_job.name}, ${character.data.activities_job.label}`"
+                                                    :items="jobs"
+                                                    item-text="name"
+                                                    item-value="id"
+                                                    label="Activities Job"
+                                                    v-model="character.data.activities_job"
                                                     return-object
                                             ></v-select>
                                         </v-col>
@@ -327,7 +347,12 @@ export default {
                 id: -1,
                 key: null,
                 name: null,
-                job: {
+                guild_wars_job: {
+                    id: 14,
+                    label: 'Super Novice',
+                    name: 'Novice Guardian',
+                },
+                activities_job: {
                     id: 14,
                     label: 'Super Novice',
                     name: 'Novice Guardian',
@@ -337,7 +362,12 @@ export default {
                 id: -1,
                 key: null,
                 name: null,
-                job: {
+                guild_wars_job: {
+                    id: 14,
+                    label: 'Super Novice',
+                    name: 'Novice Guardian',
+                },
+                activities_job: {
                     id: 14,
                     label: 'Super Novice',
                     name: 'Novice Guardian',
@@ -423,8 +453,11 @@ export default {
             this.character.key = character.key;
             this.character.user.key = ukey;
             this.character.data = Object.assign({}, character);
-            if (this.character.data.job == null) {
-                this.character.data.job = this.character.default.job;
+            if (this.character.data.guild_wars_job == null) {
+                this.character.data.guild_wars_job = this.character.default.guild_wars_job;
+            }
+            if (this.character.data.activities_job == null) {
+                this.character.data.activities_job = this.character.default.activities_job;
             }
             this.character.dialog = true;
         },

@@ -73,6 +73,8 @@ php artisan make:model Models/RomCharacter
 
 php artisan make:migration create_rom_jobs_table --create=rom_jobs
 php artisan make:migration add_foreign_key_rom_job_id_to_rom_characters_table --table=rom_characters
+php artisan make:migration convert_foreign_key_rom_job_id_to_guild_wars_rom_job_id_on_rom_characters_table --table=rom_characters
+php artisan make:migration add_foreign_key_activities_rom_job_id_to_rom_characters_table --table=rom_characters
 php artisan make:model Models/RomJob
 ```
 

@@ -29,7 +29,7 @@ class AddForeignKeyToRomCharactersTable extends Migration
     {
         Schema::table('rom_characters', function (Blueprint $table)
         {
-            $table->dropForeign('line_user_id');
+            $table->dropForeign(['line_user_id']);
             $table->dropColumn('line_user_id');
         });
     }

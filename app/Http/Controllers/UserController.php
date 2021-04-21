@@ -49,6 +49,7 @@ class UserController extends Controller
      */
     public function show(string $key)
     {
+        /** @var LineUser $user */
         $user = LineUser::where('key', $key)->first();
 
         return Response()->json($user->toArray());
@@ -97,8 +98,10 @@ class UserController extends Controller
         $user = LineUser::where('key', $ukey)->first();
         if ($user) {
             try {
-                /** @var RomJob $job */
-                $job = RomJob::find($request->toArray()['job']['id'] ?? 1);
+                /** @var RomJob $guildWarsJob */
+                $guildWarsJob = RomJob::find($request->toArray()['guild_wars_job']['id'] ?? 1);
+                /** @var RomJob $activitiesJob */
+                $activitiesJob = RomJob::find($request->toArray()['activities_job']['id'] ?? 1);
             } catch (\Exception $e) {
                 return Response()->json([
                     'status'  => 'error',
@@ -111,7 +114,8 @@ class UserController extends Controller
             $character = RomCharacter::where('key', $ckey)->first();
             if ($character) {
                 $character->setName(trim($request->toArray()['name']) ?? '');
-                $character->job()->associate($job);
+                $character->guildWarsJob()->associate($guildWarsJob);
+                $character->activitiesJob()->associate($activitiesJob);
                 $character->user()->associate($user);
                 $character->save();
             }
@@ -137,8 +141,8 @@ class UserController extends Controller
             ],
             'raw'     => [
                 'message' => $message,
-                'pattern' => $pattern,
-                'matches' => $matches,
+                'pattern' => $pattern ?? '',
+                'matches' => $matches ?? '',
             ],
         ];
 

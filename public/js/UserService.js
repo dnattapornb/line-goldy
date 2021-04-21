@@ -2192,6 +2192,26 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'UserTable',
   filters: {
@@ -2279,7 +2299,12 @@ __webpack_require__.r(__webpack_exports__);
           id: -1,
           key: null,
           name: null,
-          job: {
+          guild_wars_job: {
+            id: 14,
+            label: 'Super Novice',
+            name: 'Novice Guardian'
+          },
+          activities_job: {
             id: 14,
             label: 'Super Novice',
             name: 'Novice Guardian'
@@ -2289,7 +2314,12 @@ __webpack_require__.r(__webpack_exports__);
           id: -1,
           key: null,
           name: null,
-          job: {
+          guild_wars_job: {
+            id: 14,
+            label: 'Super Novice',
+            name: 'Novice Guardian'
+          },
+          activities_job: {
             id: 14,
             label: 'Super Novice',
             name: 'Novice Guardian'
@@ -2376,8 +2406,12 @@ __webpack_require__.r(__webpack_exports__);
       this.character.user.key = ukey;
       this.character.data = Object.assign({}, character);
 
-      if (this.character.data.job == null) {
-        this.character.data.job = this.character["default"].job;
+      if (this.character.data.guild_wars_job == null) {
+        this.character.data.guild_wars_job = this.character["default"].guild_wars_job;
+      }
+
+      if (this.character.data.activities_job == null) {
+        this.character.data.activities_job = this.character["default"].activities_job;
       }
 
       this.character.dialog = true;
@@ -38915,7 +38949,13 @@ var render = function() {
                                     _vm._v(" "),
                                     _c("th", { staticClass: "text-right" }, [
                                       _vm._v(
-                                        "\n                                Job\n                            "
+                                        "\n                                Guild Wars Job\n                            "
+                                      )
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("th", { staticClass: "text-right" }, [
+                                      _vm._v(
+                                        "\n                                Activities Job\n                            "
                                       )
                                     ]),
                                     _vm._v(" "),
@@ -38978,24 +39018,50 @@ var render = function() {
                                             [_vm._v(_vm._s(character.name))]
                                           ),
                                           _vm._v(" "),
-                                          character.job
+                                          character.guild_wars_job
                                             ? _c(
                                                 "td",
                                                 { staticClass: "text-right" },
                                                 [
                                                   _vm._v(
-                                                    _vm._s(character.job.name)
+                                                    _vm._s(
+                                                      character.guild_wars_job
+                                                        .name
+                                                    ) +
+                                                      "\n                            "
                                                   )
                                                 ]
                                               )
                                             : _c(
                                                 "td",
+                                                {
+                                                  staticClass:
+                                                    "text-right text-red"
+                                                },
+                                                [_vm._v("-- N/A --")]
+                                              ),
+                                          _vm._v(" "),
+                                          character.activities_job
+                                            ? _c(
+                                                "td",
                                                 { staticClass: "text-right" },
                                                 [
                                                   _vm._v(
-                                                    "Undefined or invalid job!"
+                                                    _vm._s(
+                                                      character.activities_job
+                                                        .name
+                                                    ) +
+                                                      "\n                            "
                                                   )
                                                 ]
+                                              )
+                                            : _c(
+                                                "td",
+                                                {
+                                                  staticClass:
+                                                    "text-right text-red"
+                                                },
+                                                [_vm._v("-- N/A --")]
                                               ),
                                           _vm._v(" "),
                                           _c(
@@ -39049,9 +39115,9 @@ var render = function() {
                                           "td",
                                           {
                                             staticClass: "text-center",
-                                            attrs: { colspan: "4" }
+                                            attrs: { colspan: "5" }
                                           },
-                                          [_vm._v("N/A")]
+                                          [_vm._v("-- N/A --")]
                                         )
                                       ])
                                     ])
@@ -39457,7 +39523,13 @@ var render = function() {
                                       [
                                         _c(
                                           "v-col",
-                                          { attrs: { cols: "12" } },
+                                          {
+                                            attrs: {
+                                              cols: "12",
+                                              sm: "6",
+                                              md: "6"
+                                            }
+                                          },
                                           [
                                             _c("v-text-field", {
                                               attrs: {
@@ -39525,25 +39597,73 @@ var render = function() {
                                             _c("v-select", {
                                               attrs: {
                                                 hint:
-                                                  _vm.character.data.job.name +
+                                                  _vm.character.data
+                                                    .guild_wars_job.name +
                                                   ", " +
-                                                  _vm.character.data.job.label,
+                                                  _vm.character.data
+                                                    .guild_wars_job.label,
                                                 items: _vm.jobs,
                                                 "item-text": "name",
                                                 "item-value": "id",
-                                                label: "Jobs",
+                                                label: "Guild Wars Job",
                                                 "return-object": ""
                                               },
                                               model: {
-                                                value: _vm.character.data.job,
+                                                value:
+                                                  _vm.character.data
+                                                    .guild_wars_job,
                                                 callback: function($$v) {
                                                   _vm.$set(
                                                     _vm.character.data,
-                                                    "job",
+                                                    "guild_wars_job",
                                                     $$v
                                                   )
                                                 },
-                                                expression: "character.data.job"
+                                                expression:
+                                                  "character.data.guild_wars_job"
+                                              }
+                                            })
+                                          ],
+                                          1
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "v-col",
+                                          {
+                                            attrs: {
+                                              cols: "12",
+                                              sm: "6",
+                                              md: "6"
+                                            }
+                                          },
+                                          [
+                                            _c("v-select", {
+                                              attrs: {
+                                                hint:
+                                                  _vm.character.data
+                                                    .activities_job.name +
+                                                  ", " +
+                                                  _vm.character.data
+                                                    .activities_job.label,
+                                                items: _vm.jobs,
+                                                "item-text": "name",
+                                                "item-value": "id",
+                                                label: "Activities Job",
+                                                "return-object": ""
+                                              },
+                                              model: {
+                                                value:
+                                                  _vm.character.data
+                                                    .activities_job,
+                                                callback: function($$v) {
+                                                  _vm.$set(
+                                                    _vm.character.data,
+                                                    "activities_job",
+                                                    $$v
+                                                  )
+                                                },
+                                                expression:
+                                                  "character.data.activities_job"
                                               }
                                             })
                                           ],

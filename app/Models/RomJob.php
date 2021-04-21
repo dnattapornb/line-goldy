@@ -40,11 +40,11 @@ class RomJob extends Model
     }
 
     /**
-     * Get the "Rom Characters" for the "Rom Job".
+     * Get the "Rom Characters" for the "Guild Wars Rom Job".
      */
     public function characters()
     {
-        return $this->hasMany(RomCharacter::class, 'rom_job_id');
+        return $this->hasMany(RomCharacter::class, 'guild_wars_rom_job_id');
     }
 
     public function toArray()

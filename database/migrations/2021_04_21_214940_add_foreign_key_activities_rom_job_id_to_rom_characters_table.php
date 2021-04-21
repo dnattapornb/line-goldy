@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddForeignKeyRomJobIdToRomCharactersTable extends Migration
+class AddForeignKeyActivitiesRomJobIdToRomCharactersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,8 +15,8 @@ class AddForeignKeyRomJobIdToRomCharactersTable extends Migration
     {
         Schema::table('rom_characters', function (Blueprint $table)
         {
-            $table->bigInteger('rom_job_id')->unsigned()->index()->nullable()->after('line_user_id');
-            $table->foreign('rom_job_id')->references('id')->on('rom_jobs');
+            $table->bigInteger('activities_rom_job_id')->unsigned()->index()->nullable()->after('guild_wars_rom_job_id');
+            $table->foreign('activities_rom_job_id')->references('id')->on('rom_jobs');
         });
     }
 
@@ -29,8 +29,8 @@ class AddForeignKeyRomJobIdToRomCharactersTable extends Migration
     {
         Schema::table('rom_characters', function (Blueprint $table)
         {
-            $table->dropForeign(['rom_job_id']);
-            $table->dropColumn('rom_job_id');
+            $table->dropForeign(['activities_rom_job_id']);
+            $table->dropColumn('activities_rom_job_id');
         });
     }
 }
