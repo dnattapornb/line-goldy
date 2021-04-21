@@ -2120,6 +2120,78 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'UserTable',
   filters: {
@@ -2138,7 +2210,6 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      dialog: false,
       expanded: [],
       singleExpand: true,
       search: null,
@@ -2175,30 +2246,64 @@ __webpack_require__.r(__webpack_exports__);
         value: 'action'
       }],
       users: [],
-      editedIndex: -1,
-      editedItem: {
-        id: '',
-        key: '',
-        name: '',
-        display_name: null,
-        picture_url: null,
-        published: false,
-        is_friend: false
+      jobs: [],
+      user: {
+        dialog: false,
+        key: null,
+        data: {
+          id: -1,
+          key: null,
+          name: null,
+          display_name: null,
+          picture_url: null,
+          published: false,
+          is_friend: false
+        },
+        "default": {
+          id: -1,
+          key: null,
+          name: null,
+          display_name: null,
+          picture_url: null,
+          published: false,
+          is_friend: false
+        }
       },
-      defaultItem: {
-        id: '',
-        key: '',
-        name: null,
-        display_name: null,
-        picture_url: null,
-        published: false,
-        is_friend: false
+      character: {
+        dialog: false,
+        key: null,
+        user: {
+          key: null
+        },
+        data: {
+          id: -1,
+          key: null,
+          name: null,
+          job: {
+            id: 14,
+            label: 'Super Novice',
+            name: 'Novice Guardian'
+          }
+        },
+        "default": {
+          id: -1,
+          key: null,
+          name: null,
+          job: {
+            id: 14,
+            label: 'Super Novice',
+            name: 'Novice Guardian'
+          }
+        }
       }
     };
   },
   computed: {
-    formTitle: function formTitle() {
-      return this.editedIndex === -1 ? 'new user' : 'edit user';
+    userDialogTitle: function userDialogTitle() {
+      return this.user.key === null ? 'new user' : 'edit user';
+    },
+    characterDialogTitle: function characterDialogTitle() {
+      return this.user.key === null ? 'new character' : 'edit character';
     }
   },
   watch: {
@@ -2215,38 +2320,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     initialize: function initialize() {
+      this.getJobs();
       this.getUsers();
-    },
-    getUsers: function getUsers() {
-      var _this = this;
-
-      console.log('run "method" : getUsers()');
-      this.loading = true;
-      axios.get('/users').then(function (response) {
-        console.log(response);
-        _this.users = response.data;
-      })["catch"](function (error) {
-        console.log(error);
-        _this.errored = true;
-      })["finally"](function () {
-        return _this.loading = false;
-      });
-    },
-    updateUsers: function updateUsers(user) {
-      var _this2 = this;
-
-      console.log('run "method" : updateUsers()');
-      this.loading = true;
-      axios.put('/users/' + user.id, user).then(function (response) {
-        console.log(response);
-
-        _this2.getUsers();
-      })["catch"](function (error) {
-        console.log(error);
-        _this2.errored = true;
-      })["finally"](function () {
-        return _this2.loading = false;
-      });
     },
     getColor: function getColor(value) {
       if (value) {
@@ -2255,26 +2330,105 @@ __webpack_require__.r(__webpack_exports__);
         return 'red';
       }
     },
-    editItem: function editItem(item) {
-      this.editedIndex = this.users.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
+    getJobs: function getJobs() {
+      var _this = this;
+
+      console.log('run "method" : getJobs()');
+      this.loading = true;
+      axios.get('/rom/jobs').then(function (response) {
+        console.log(response);
+        _this.jobs = response.data;
+      })["catch"](function (error) {
+        console.log(error);
+        _this.errored = true;
+      })["finally"](function () {
+        return _this.loading = false;
+      });
+    },
+    getUsers: function getUsers() {
+      var _this2 = this;
+
+      console.log('run "method" : getUsers()');
+      this.loading = true;
+      axios.get('/users').then(function (response) {
+        console.log(response);
+        _this2.users = response.data;
+      })["catch"](function (error) {
+        console.log(error);
+        _this2.errored = true;
+      })["finally"](function () {
+        return _this2.loading = false;
+      });
+    },
+    editUser: function editUser(user) {
+      this.user.key = user.key;
+      this.user.data = Object.assign({}, user);
+      this.user.dialog = true;
+    },
+    addCharacter: function addCharacter(ukey) {
+      this.character.key = null;
+      this.character.user.key = ukey;
+      this.character.data = Object.assign({}, this.character["default"]);
+      this.character.dialog = true;
+    },
+    editCharacter: function editCharacter(ukey, character) {
+      this.character.key = character.key;
+      this.character.user.key = ukey;
+      this.character.data = Object.assign({}, character);
+
+      if (this.character.data.job == null) {
+        this.character.data.job = this.character["default"].job;
+      }
+
+      this.character.dialog = true;
     },
     close: function close() {
       var _this3 = this;
 
-      this.dialog = false;
+      this.user.dialog = false;
+      this.character.dialog = false;
       this.$nextTick(function () {
-        _this3.editedItem = Object.assign({}, _this3.defaultItem);
-        _this3.editedIndex = -1;
+        _this3.user.data = Object.assign({}, _this3.user["default"]);
+        _this3.user.key = null;
+        _this3.character.data = Object.assign({}, _this3.character["default"]);
+        _this3.character.key = null;
       });
     },
-    save: function save() {
-      if (this.editedIndex > -1) {
-        this.updateUsers(this.editedItem);
-      } else {
-        // new object
-        this.users.push(this.editedItem);
+    save: function save(type) {
+      var _this4 = this;
+
+      if (type === 'user') {
+        if (this.user.key === null) {//
+        } else {
+          console.log('run "method" : save(\'user\')');
+          this.loading = true;
+          axios.put('/users/' + this.user.data.key, this.user.data).then(function (response) {
+            console.log(response);
+
+            _this4.getUsers();
+          })["catch"](function (error) {
+            console.log(error);
+            _this4.errored = true;
+          })["finally"](function () {
+            return _this4.loading = false;
+          });
+        }
+      } else if (type === 'character') {
+        if (this.character.key === null) {//
+        } else {
+          console.log('run "method" : save(\'character\')');
+          this.loading = true;
+          axios.put('/users/' + this.character.user.key + '/characters/' + this.character.data.key, this.character.data).then(function (response) {
+            console.log(response);
+
+            _this4.getUsers();
+          })["catch"](function (error) {
+            console.log(error);
+            _this4.errored = true;
+          })["finally"](function () {
+            return _this4.loading = false;
+          });
+        }
       }
 
       this.close();
@@ -38678,7 +38832,7 @@ var render = function() {
                     attrs: { small: "", color: "orange", dark: "" },
                     on: {
                       click: function($event) {
-                        return _vm.editItem(item)
+                        return _vm.editUser(item)
                       }
                     }
                   },
@@ -38690,6 +38844,38 @@ var render = function() {
                   ],
                   1
                 )
+              ]
+            }
+          },
+          {
+            key: "item.data-table-expand",
+            fn: function(ref) {
+              var expand = ref.expand
+              var isExpanded = ref.isExpanded
+              return [
+                isExpanded
+                  ? _c(
+                      "v-icon",
+                      {
+                        on: {
+                          click: function($event) {
+                            return expand(!isExpanded)
+                          }
+                        }
+                      },
+                      [_vm._v("mdi-chevron-down")]
+                    )
+                  : _c(
+                      "v-icon",
+                      {
+                        on: {
+                          click: function($event) {
+                            return expand(!isExpanded)
+                          }
+                        }
+                      },
+                      [_vm._v("mdi-chevron-right")]
+                    )
               ]
             }
           },
@@ -38706,67 +38892,180 @@ var render = function() {
                     attrs: { colspan: headers.length }
                   },
                   [
-                    [
-                      _c("v-simple-table", {
-                        scopedSlots: _vm._u(
-                          [
-                            {
-                              key: "default",
-                              fn: function() {
-                                return [
-                                  _c("thead", [
-                                    _c("tr", [
-                                      _c("th", { attrs: { colspan: "3" } }),
-                                      _vm._v(" "),
-                                      _c("th", { staticClass: "text-left" }, [
-                                        _vm._v(
-                                          "\n                                    Key (RoM)*\n                                "
+                    _c("v-simple-table", {
+                      scopedSlots: _vm._u(
+                        [
+                          {
+                            key: "default",
+                            fn: function() {
+                              return [
+                                _c("thead", [
+                                  _c("tr", [
+                                    _c("th", { staticClass: "text-right" }, [
+                                      _vm._v(
+                                        "\n                                Key (Character)*\n                            "
+                                      )
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("th", { staticClass: "text-right" }, [
+                                      _vm._v(
+                                        "\n                                Name\n                            "
+                                      )
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("th", { staticClass: "text-right" }, [
+                                      _vm._v(
+                                        "\n                                Job\n                            "
+                                      )
+                                    ]),
+                                    _vm._v(" "),
+                                    _c(
+                                      "th",
+                                      [
+                                        _c(
+                                          "v-btn",
+                                          {
+                                            staticClass: "ma-2",
+                                            attrs: {
+                                              small: "",
+                                              color: "primary",
+                                              dark: ""
+                                            },
+                                            on: {
+                                              click: function($event) {
+                                                return _vm.addCharacter(
+                                                  item.key
+                                                )
+                                              }
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n                                    add\n                                    "
+                                            ),
+                                            _c(
+                                              "v-icon",
+                                              {
+                                                attrs: { dark: "", right: "" }
+                                              },
+                                              [_vm._v("mdi-account-plus")]
+                                            )
+                                          ],
+                                          1
                                         )
-                                      ]),
-                                      _vm._v(" "),
-                                      _c("th", { staticClass: "text-left" }, [
-                                        _vm._v(
-                                          "\n                                    Name\n                                "
-                                        )
-                                      ]),
-                                      _vm._v(" "),
-                                      _c("th", { staticClass: "text-left" }, [
-                                        _vm._v(
-                                          "\n                                    Job\n                                "
+                                      ],
+                                      1
+                                    )
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                item.characters.length
+                                  ? _c(
+                                      "tbody",
+                                      _vm._l(item.characters, function(
+                                        character
+                                      ) {
+                                        return _c("tr", { key: character.id }, [
+                                          _c(
+                                            "td",
+                                            { staticClass: "text-right" },
+                                            [_vm._v(_vm._s(character.key))]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "td",
+                                            { staticClass: "text-right" },
+                                            [_vm._v(_vm._s(character.name))]
+                                          ),
+                                          _vm._v(" "),
+                                          character.job
+                                            ? _c(
+                                                "td",
+                                                { staticClass: "text-right" },
+                                                [
+                                                  _vm._v(
+                                                    _vm._s(character.job.name)
+                                                  )
+                                                ]
+                                              )
+                                            : _c(
+                                                "td",
+                                                { staticClass: "text-right" },
+                                                [
+                                                  _vm._v(
+                                                    "Undefined or invalid job!"
+                                                  )
+                                                ]
+                                              ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "td",
+                                            [
+                                              _c(
+                                                "v-btn",
+                                                {
+                                                  staticClass: "ma-2",
+                                                  attrs: {
+                                                    small: "",
+                                                    color: "blue",
+                                                    dark: ""
+                                                  },
+                                                  on: {
+                                                    click: function($event) {
+                                                      return _vm.editCharacter(
+                                                        item.key,
+                                                        character
+                                                      )
+                                                    }
+                                                  }
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    "\n                                    edit\n                                    "
+                                                  ),
+                                                  _c(
+                                                    "v-icon",
+                                                    {
+                                                      attrs: {
+                                                        dark: "",
+                                                        right: ""
+                                                      }
+                                                    },
+                                                    [_vm._v("mdi-account-edit")]
+                                                  )
+                                                ],
+                                                1
+                                              )
+                                            ],
+                                            1
+                                          )
+                                        ])
+                                      }),
+                                      0
+                                    )
+                                  : _c("tbody", [
+                                      _c("tr", [
+                                        _c(
+                                          "td",
+                                          {
+                                            staticClass: "text-center",
+                                            attrs: { colspan: "4" }
+                                          },
+                                          [_vm._v("N/A")]
                                         )
                                       ])
                                     ])
-                                  ]),
-                                  _vm._v(" "),
-                                  _c(
-                                    "tbody",
-                                    _vm._l(item.characters, function(item) {
-                                      return _c("tr", { key: item.key }, [
-                                        _c("td", { attrs: { colspan: "3" } }),
-                                        _vm._v(" "),
-                                        _c("td", [_vm._v(_vm._s(item.name))]),
-                                        _vm._v(" "),
-                                        _c("td", [_vm._v(_vm._s(item.key))]),
-                                        _vm._v(" "),
-                                        _c("td", [
-                                          _vm._v(_vm._s(item.job.name))
-                                        ])
-                                      ])
-                                    }),
-                                    0
-                                  )
-                                ]
-                              },
-                              proxy: true
-                            }
-                          ],
-                          null,
-                          true
-                        )
-                      })
-                    ]
+                              ]
+                            },
+                            proxy: true
+                          }
+                        ],
+                        null,
+                        true
+                      )
+                    })
                   ],
-                  2
+                  1
                 )
               ]
             }
@@ -38880,11 +39179,11 @@ var render = function() {
                           }
                         ]),
                         model: {
-                          value: _vm.dialog,
+                          value: _vm.user.dialog,
                           callback: function($$v) {
-                            _vm.dialog = $$v
+                            _vm.$set(_vm.user, "dialog", $$v)
                           },
-                          expression: "dialog"
+                          expression: "user.dialog"
                         }
                       },
                       [
@@ -38895,7 +39194,9 @@ var render = function() {
                             _c("v-card-title", [
                               _c("span", { staticClass: "headline" }, [
                                 _vm._v(
-                                  _vm._s(_vm._f("uppercase")(_vm.formTitle))
+                                  _vm._s(
+                                    _vm._f("uppercase")(_vm.userDialogTitle)
+                                  )
                                 )
                               ])
                             ]),
@@ -38919,16 +39220,16 @@ var render = function() {
                                                 label: "Published"
                                               },
                                               model: {
-                                                value: _vm.editedItem.published,
+                                                value: _vm.user.data.published,
                                                 callback: function($$v) {
                                                   _vm.$set(
-                                                    _vm.editedItem,
+                                                    _vm.user.data,
                                                     "published",
                                                     $$v
                                                   )
                                                 },
                                                 expression:
-                                                  "editedItem.published"
+                                                  "user.data.published"
                                               }
                                             })
                                           ],
@@ -38946,15 +39247,15 @@ var render = function() {
                                                 readonly: ""
                                               },
                                               model: {
-                                                value: _vm.editedItem.key,
+                                                value: _vm.user.data.key,
                                                 callback: function($$v) {
                                                   _vm.$set(
-                                                    _vm.editedItem,
+                                                    _vm.user.data,
                                                     "key",
                                                     $$v
                                                   )
                                                 },
-                                                expression: "editedItem.key"
+                                                expression: "user.data.key"
                                               }
                                             })
                                           ],
@@ -38976,20 +39277,20 @@ var render = function() {
                                                 label: "Display Name (Line)*",
                                                 required: "",
                                                 readonly:
-                                                  _vm.editedItem.is_friend
+                                                  _vm.user.data.is_friend
                                               },
                                               model: {
                                                 value:
-                                                  _vm.editedItem.display_name,
+                                                  _vm.user.data.display_name,
                                                 callback: function($$v) {
                                                   _vm.$set(
-                                                    _vm.editedItem,
+                                                    _vm.user.data,
                                                     "display_name",
                                                     $$v
                                                   )
                                                 },
                                                 expression:
-                                                  "editedItem.display_name"
+                                                  "user.data.display_name"
                                               }
                                             })
                                           ],
@@ -39009,15 +39310,15 @@ var render = function() {
                                             _c("v-text-field", {
                                               attrs: { label: "Name" },
                                               model: {
-                                                value: _vm.editedItem.name,
+                                                value: _vm.user.data.name,
                                                 callback: function($$v) {
                                                   _vm.$set(
-                                                    _vm.editedItem,
+                                                    _vm.user.data,
                                                     "name",
                                                     $$v
                                                   )
                                                 },
-                                                expression: "editedItem.name"
+                                                expression: "user.data.name"
                                               }
                                             })
                                           ],
@@ -39055,7 +39356,236 @@ var render = function() {
                                   "v-btn",
                                   {
                                     attrs: { color: "blue darken-1", text: "" },
-                                    on: { click: _vm.save }
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.save("user")
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                                Save\n                            "
+                                    )
+                                  ]
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        )
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "v-dialog",
+                      {
+                        attrs: { "max-width": "600px" },
+                        scopedSlots: _vm._u([
+                          {
+                            key: "activator",
+                            fn: function(ref) {
+                              var on = ref.on
+                              var attrs = ref.attrs
+                              return [
+                                _c(
+                                  "v-btn",
+                                  _vm._g(
+                                    _vm._b(
+                                      {
+                                        directives: [
+                                          {
+                                            name: "show",
+                                            rawName: "v-show",
+                                            value: false,
+                                            expression: "false"
+                                          }
+                                        ],
+                                        staticClass: "mb-2",
+                                        attrs: { color: "primary", dark: "" }
+                                      },
+                                      "v-btn",
+                                      attrs,
+                                      false
+                                    ),
+                                    on
+                                  ),
+                                  [
+                                    _vm._v(
+                                      "\n                            New Item\n                        "
+                                    )
+                                  ]
+                                )
+                              ]
+                            }
+                          }
+                        ]),
+                        model: {
+                          value: _vm.character.dialog,
+                          callback: function($$v) {
+                            _vm.$set(_vm.character, "dialog", $$v)
+                          },
+                          expression: "character.dialog"
+                        }
+                      },
+                      [
+                        _vm._v(" "),
+                        _c(
+                          "v-card",
+                          [
+                            _c("v-card-title", [
+                              _c("span", { staticClass: "headline" }, [
+                                _vm._v(
+                                  _vm._s(
+                                    _vm._f("uppercase")(
+                                      _vm.characterDialogTitle
+                                    )
+                                  )
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "v-card-text",
+                              [
+                                _c(
+                                  "v-container",
+                                  [
+                                    _c(
+                                      "v-row",
+                                      [
+                                        _c(
+                                          "v-col",
+                                          { attrs: { cols: "12" } },
+                                          [
+                                            _c("v-text-field", {
+                                              attrs: {
+                                                label: "Key (Character)*",
+                                                required: "",
+                                                readonly: !_vm.character.key
+                                                  ? false
+                                                  : true
+                                              },
+                                              model: {
+                                                value: _vm.character.data.key,
+                                                callback: function($$v) {
+                                                  _vm.$set(
+                                                    _vm.character.data,
+                                                    "key",
+                                                    $$v
+                                                  )
+                                                },
+                                                expression: "character.data.key"
+                                              }
+                                            })
+                                          ],
+                                          1
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "v-col",
+                                          {
+                                            attrs: {
+                                              cols: "12",
+                                              sm: "6",
+                                              md: "6"
+                                            }
+                                          },
+                                          [
+                                            _c("v-text-field", {
+                                              attrs: { label: "Name" },
+                                              model: {
+                                                value: _vm.character.data.name,
+                                                callback: function($$v) {
+                                                  _vm.$set(
+                                                    _vm.character.data,
+                                                    "name",
+                                                    $$v
+                                                  )
+                                                },
+                                                expression:
+                                                  "character.data.name"
+                                              }
+                                            })
+                                          ],
+                                          1
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "v-col",
+                                          {
+                                            attrs: {
+                                              cols: "12",
+                                              sm: "6",
+                                              md: "6"
+                                            }
+                                          },
+                                          [
+                                            _c("v-select", {
+                                              attrs: {
+                                                hint:
+                                                  _vm.character.data.job.name +
+                                                  ", " +
+                                                  _vm.character.data.job.label,
+                                                items: _vm.jobs,
+                                                "item-text": "name",
+                                                "item-value": "id",
+                                                label: "Jobs",
+                                                "return-object": ""
+                                              },
+                                              model: {
+                                                value: _vm.character.data.job,
+                                                callback: function($$v) {
+                                                  _vm.$set(
+                                                    _vm.character.data,
+                                                    "job",
+                                                    $$v
+                                                  )
+                                                },
+                                                expression: "character.data.job"
+                                              }
+                                            })
+                                          ],
+                                          1
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "v-card-actions",
+                              [
+                                _c("v-spacer"),
+                                _vm._v(" "),
+                                _c(
+                                  "v-btn",
+                                  {
+                                    attrs: { color: "blue darken-1", text: "" },
+                                    on: { click: _vm.close }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                                Cancel\n                            "
+                                    )
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "v-btn",
+                                  {
+                                    attrs: { color: "blue darken-1", text: "" },
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.save("character")
+                                      }
+                                    }
                                   },
                                   [
                                     _vm._v(

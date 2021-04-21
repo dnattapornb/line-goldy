@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Yaml\Yaml;
-use function response;
+use Ramsey\Uuid\Uuid;
 
 class UserController extends Controller
 {
@@ -43,28 +43,27 @@ class UserController extends Controller
     }
 
     /**
-     * @param  string  $id
+     * @param  string  $key
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(string $id)
+    public function show(string $key)
     {
-        $user = LineUser::where('key', $id)->first();
+        $user = LineUser::where('key', $key)->first();
 
         return Response()->json($user->toArray());
     }
 
     /**
      * @param  \Illuminate\Http\Request  $request
-     * @param  string                    $id
+     * @param  string                    $key
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $key)
     {
-        /** @var \App\Models\LineUser $user */
-        $user = LineUser::find($id);
-
+        /** @var LineUser $user */
+        $user = LineUser::where('key', $key)->first();
         if ($user) {
             $user->setPublished($request->toArray()['published'] ?? false);
             $user->setDisplayName(trim($request->toArray()['display_name']) ?? '');
@@ -85,71 +84,123 @@ class UserController extends Controller
         return Response()->json(['id' => $id]);
     }
 
-    public function test()
+    /**
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string                    $ukey
+     * @param  string                    $ckey
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateCharacter(Request $request, string $ukey, string $ckey)
     {
         /** @var LineUser $user */
-        $user = LineUser::find(1);
-        dump($user);
+        $user = LineUser::where('key', $ukey)->first();
+        if ($user) {
+            try {
+                /** @var RomJob $job */
+                $job = RomJob::find($request->toArray()['job']['id'] ?? 1);
+            } catch (\Exception $e) {
+                return Response()->json([
+                    'status'  => 'error',
+                    'message' => 'Error',
+                    'errors'  => $e->getMessage(),
+                ], 422);
+            }
 
-        $characters = $user->characters()->get();
-        dump($characters, $characters->count(), $characters->toArray());
-
-        /** @var \App\Models\RomCharacter[] $characters */
-        foreach ($characters as $character) {
-            /** @var \Illuminate\Support\Collection $user */
-            $user = $character->user()->get();
-            // $userName = $character->user->name;
-            $job = $character->job()->get();
-            // $jobName = $character->job->name;
-            dd($user->isEmpty(), $job->isEmpty());
+            /** @var RomCharacter $character */
+            $character = RomCharacter::where('key', $ckey)->first();
+            if ($character) {
+                $character->setName(trim($request->toArray()['name']) ?? '');
+                $character->job()->associate($job);
+                $character->user()->associate($user);
+                $character->save();
+            }
         }
-        exit();
 
-        // $this->save_character($user);
-        // $this->associate_character($user);
-        $this->dissociate_character($user);
+        return Response()->json($user);
     }
 
-    private function save_character(LineUser $user)
+    public function test()
     {
-        $character = new RomCharacter();
-        $character->setKey(1238);
-        $character->setName('test1238');
-        $user->characters()->save($character);
-
-        $characters = $user->characters()->get();
-        dump($characters, $characters->count(), $characters->toArray());
-
-        exit();
+        $message = 'ไอเต่า';
+        $pattern = $this->getMessagePattern($message);
+        dd($pattern);
     }
 
-    private function associate_character(LineUser $user)
+    private function getMessagePattern($message)
     {
-        /** @var RomCharacter $character */
-        $character = RomCharacter::find(2);
-        // dd($character->toArray());
+        $data = [
+            'success' => false,
+            'pattern' => [
+                'command' => '',
+                'params'  => [],
+            ],
+            'raw'     => [
+                'message' => $message,
+                'pattern' => $pattern,
+                'matches' => $matches,
+            ],
+        ];
 
-        $character->user()->associate($user);
-        $character->save();
+        /* dj */
+        $pattern = '/(ไป\s*){3,6}/i';
+        preg_match($pattern, $message, $matches);
+        if (!empty($matches)) {
+            $data['success'] = true;
+            $data['pattern']['command'] = 'ไป';
 
-        $characters = $user->characters()->get();
-        dump($characters, $characters->count(), $characters->toArray());
+            return $data;
+        }
 
-        exit();
-    }
+        /* ตัวเหีี๊ย */
+        $groupName = [
+            'boy'  => ['บอย'],
+            'bas'  => ['บาส'],
+            'poon' => ['ปูน'],
+            'tong' => ['โต้ง'],
+            'tee'  => ['ตี๋'],
+            'pae'  => [
+                'เป้',
+                'เพ้',
+            ],
+            'krit' => [
+                'กิต',
+                'กิด',
+                'กฤติน์',
+                'กฤ',
+                'กฤต',
+            ],
+            'att'  => [
+                'อัต',
+                'เต่า',
+            ],
+        ];
+        $names = [];
+        foreach (array_values($groupName) as $value) {
+            $names = array_merge($names, $value);
+        }
 
-    private function dissociate_character(LineUser $user)
-    {
-        /** @var RomCharacter $character */
-        $character = RomCharacter::find(2);
-        // dd($character->toArray());
+        $pattern = '/';
+        $pattern .= '(ไอ|อัย|พี่|น้อง)';
+        $pattern .= '(';
+        $pattern .= implode('|', $names);
+        $pattern .= ')';
+        $pattern .= '/i';
+        preg_match($pattern, $message, $matches);
+        if (!empty($matches)) {
+            $command = $name = $matches[2];
+            foreach ($groupName as $key => $values) {
+                if (in_array($name, $values)) {
+                    $command = $key;
+                    break;
+                }
+            }
+            $data['success'] = true;
+            $data['pattern']['command'] = $command;
 
-        $character->user()->dissociate();
-        $character->save();
+            return $data;
+        }
 
-        $characters = $user->characters()->get();
-        dump($characters, $characters->count(), $characters->toArray());
-
-        exit();
+        return $data;
     }
 }

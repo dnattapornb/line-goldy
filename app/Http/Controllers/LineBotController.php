@@ -13,6 +13,7 @@ use Symfony\Component\Yaml\Yaml;
 
 use LINE\LINEBot\Event\PostbackEvent;
 use LINE\LINEBot\Event\MessageEvent\TextMessage;
+use LINE\LINEBot\Event\MessageEvent\MentioneeInfo;
 use LINE\LINEBot\Event\MessageEvent\StickerMessage;
 use LINE\LINEBot\Event\MessageEvent\ImageMessage;
 use LINE\LINEBot\Event\MessageEvent\AudioMessage;
@@ -146,8 +147,21 @@ class LineBotController extends Controller
 
                 // Text message
                 if (($event instanceof TextMessage)) {
+                    $mentionIds = [];
+                    if ($event->getMentionees()) {
+                        $mentionees = $event->getMentionees();
+                        foreach ($mentionees as $mentionee) {
+                            if ($mentionee instanceof MentioneeInfo) {
+                                if (!in_array($mentionee->getUserId(), $mentionIds)) {
+                                    array_push($mentionIds, $mentionee->getUserId());
+                                }
+                            }
+                        }
+                    }
+                    Log::info('LINE_BOT.MentionIds => ', $mentionIds);
+
                     $messageText = strtolower(trim($event->getText()));
-                    if ($this->permitUser($userId)) {
+                    if ($this->permitUser($userId) && true) {
                         $validator = $this->msgPattern($messageText);
                         Log::info('LINE_BOT.TextMessage(validator) => ', $validator);
                         if ($validator['success']) {
@@ -342,7 +356,7 @@ class LineBotController extends Controller
         return false;
     }
 
-    private function msgPattern($subject)
+    private function msgPattern($message)
     {
         $data = [
             'success' => false,
@@ -351,7 +365,7 @@ class LineBotController extends Controller
 
         /* dj */
         $pattern = '/(ไป\s*){3,6}/i';
-        preg_match($pattern, $subject, $matches);
+        preg_match($pattern, $message, $matches);
         if (!empty($matches)) {
             $data['success'] = true;
             $data['text'] = 'ไป';
@@ -361,7 +375,7 @@ class LineBotController extends Controller
 
         /* ตัวเหีี๊ย */
         $pattern = '/(ไอ|พี่|น้อง)?(กิต|ตี๋|เพ้|เป้|อัต|เต่า)$/i';
-        preg_match($pattern, $subject, $matches);
+        preg_match($pattern, $message, $matches);
         if (!empty($matches)) {
             $data['success'] = true;
             $data['text'] = 'วัว';

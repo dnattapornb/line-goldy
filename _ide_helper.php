@@ -3,7 +3,7 @@
 
 /**
  * A helper file for Laravel 5, to provide autocomplete information to your IDE
- * Generated for Laravel 5.8.38 on 2021-03-19 09:21:27.
+ * Generated for Laravel 5.8.38 on 2021-04-21 15:00:31.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -14613,6 +14613,1065 @@ namespace Symfony\Component\Yaml {
  
 }
 
+namespace LINE\Laravel\Facade { 
+
+    /**
+     * 
+     *
+     */ 
+    class LINEBot {
+        
+        /**
+         * Get basic information about bot.
+         *
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getBotInfo()
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getBotInfo();
+        }
+        
+        /**
+         * Gets specified user's profile through API calling.
+         *
+         * @param string $userId The user ID to retrieve profile.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getProfile($userId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getProfile($userId);
+        }
+        
+        /**
+         * Gets the list of User IDs of users who have added your LINE Official Account as a friend.
+         * 
+         * These users' IDs won't be included in the obtained list of user IDs:
+         * - Users who blocked the target LINE Official Account after adding it as a friend.
+         * - Users who haven't consented to their profile information being obtained.
+         * 
+         * This feature is only available for LINE@ Approved accounts or official accounts.
+         *
+         * @param string|null $start continuationToken
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getFollowerIds($start = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getFollowerIds($start);
+        }
+        
+        /**
+         * Gets the list of User IDs of users who have added your LINE Official Account as a friend.
+         * 
+         * These users' IDs won't be included in the obtained list of user IDs:
+         * - Users who blocked the target LINE Official Account after adding it as a friend.
+         * - Users who haven't consented to their profile information being obtained.
+         * 
+         * This method gets all of followers by calling getFollowerIds() continually using token
+         * 
+         * This feature is only available for LINE@ Approved accounts or official accounts.
+         *
+         * @return array userIds
+         * @see \LINE\LINEBot::getFollowerIds()
+         * @static 
+         */ 
+        public static function getAllFollowerIds()
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getAllFollowerIds();
+        }
+        
+        /**
+         * Gets message content which is associated with specified message ID.
+         *
+         * @param string $messageId The message ID to retrieve content.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getMessageContent($messageId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getMessageContent($messageId);
+        }
+        
+        /**
+         * Gets the target limit for additional messages in the current month.
+         *
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getNumberOfLimitForAdditional()
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getNumberOfLimitForAdditional();
+        }
+        
+        /**
+         * Gets the number of messages sent in the current month.
+         *
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getNumberOfSentThisMonth()
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getNumberOfSentThisMonth();
+        }
+        
+        /**
+         * Replies arbitrary message to destination which is associated with reply token.
+         *
+         * @param string $replyToken Identifier of destination.
+         * @param \LINE\MessageBuilder $messageBuilder Message builder to send.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function replyMessage($replyToken, $messageBuilder)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->replyMessage($replyToken, $messageBuilder);
+        }
+        
+        /**
+         * Replies text message(s) to destination which is associated with reply token.
+         * 
+         * This method receives variable texts. It can send text(s) message as bulk.
+         * 
+         * Exact signature of this method is <code>replyText(string $replyToken, string $text, string[] $extraTexts)</code>.
+         * 
+         * Means, this method can also receive multiple texts like so;
+         * 
+         * <code>
+         * $bot->replyText('reply-text', 'text', 'extra text1', 'extra text2', ...)
+         * </code>
+         *
+         * @param string $replyToken Identifier of destination.
+         * @param string $text Text of message.
+         * @param string[]|null $extraTexts Extra text of message.
+         * @return \Response 
+         * @throws \ReflectionException
+         * @static 
+         */ 
+        public static function replyText($replyToken, $text, $extraTexts = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->replyText($replyToken, $text, $extraTexts);
+        }
+        
+        /**
+         * Sends arbitrary message to destination.
+         *
+         * @param string $to Identifier of destination.
+         * @param \LINE\MessageBuilder $messageBuilder Message builder to send.
+         * @param boolean $notificationDisabled Don't send push notifications(=true) or send(=false)
+         * @param string|null $retryKey UUID(example: 123e4567-e89b-12d3-a456-426614174000) or Not needed retry(=null)
+         * @return \Response 
+         * @static 
+         */ 
+        public static function pushMessage($to, $messageBuilder, $notificationDisabled = false, $retryKey = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->pushMessage($to, $messageBuilder, $notificationDisabled, $retryKey);
+        }
+        
+        /**
+         * Sends arbitrary message to multi destinations.
+         *
+         * @param array $tos Identifiers of destination.
+         * @param \LINE\MessageBuilder $messageBuilder Message builder to send.
+         * @param boolean $notificationDisabled Don't send push notifications(=true) or send(=false)
+         * @param string|null $retryKey UUID(example: 123e4567-e89b-12d3-a456-426614174000) or Not needed retry(=null)
+         * @return \Response 
+         * @static 
+         */ 
+        public static function multicast($tos, $messageBuilder, $notificationDisabled = false, $retryKey = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->multicast($tos, $messageBuilder, $notificationDisabled, $retryKey);
+        }
+        
+        /**
+         * Sends push messages to multiple users at any time.
+         * 
+         * LINE@ accounts cannot call this API endpoint. Please migrate it to a LINE official account.
+         *
+         * @param \LINE\MessageBuilder $messageBuilder Message builder to send.
+         * @param boolean $notificationDisabled Don't send push notifications(=true) or send(=false)
+         * @param string|null $retryKey UUID(example: 123e4567-e89b-12d3-a456-426614174000) or Not needed retry(=null)
+         * @return \Response 
+         * @static 
+         */ 
+        public static function broadcast($messageBuilder, $notificationDisabled = false, $retryKey = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->broadcast($messageBuilder, $notificationDisabled, $retryKey);
+        }
+        
+        /**
+         * Leaves from group.
+         *
+         * @param string $groupId Identifier of group to leave.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function leaveGroup($groupId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->leaveGroup($groupId);
+        }
+        
+        /**
+         * Leaves from room.
+         *
+         * @param string $roomId Identifier of room to leave.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function leaveRoom($roomId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->leaveRoom($roomId);
+        }
+        
+        /**
+         * Parse event request to Event objects.
+         *
+         * @param string $body Request body.
+         * @param string $signature Signature of request.
+         * @param bool $eventOnly if this flag on, get events only.
+         * @return mixed 
+         * @throws LINEBot\Exception\InvalidEventRequestException
+         * @throws LINEBot\Exception\InvalidSignatureException
+         * @static 
+         */ 
+        public static function parseEventRequest($body, $signature, $eventOnly = true)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->parseEventRequest($body, $signature, $eventOnly);
+        }
+        
+        /**
+         * Validate request with signature.
+         *
+         * @param string $body Request body.
+         * @param string $signature Signature of request.
+         * @return bool Request is valid or not.
+         * @throws LINEBot\Exception\InvalidSignatureException
+         * @static 
+         */ 
+        public static function validateSignature($body, $signature)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->validateSignature($body, $signature);
+        }
+        
+        /**
+         * Gets the user profile of a member of a group that the bot is in.
+         * 
+         * This can be the user ID of a user who has not added the bot as a friend or has blocked the bot.
+         *
+         * @param string $groupId Identifier of the group
+         * @param string $userId Identifier of the user
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getGroupMemberProfile($groupId, $userId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getGroupMemberProfile($groupId, $userId);
+        }
+        
+        /**
+         * Gets the user profile of a member of a room that the bot is in.
+         * 
+         * This can be the user ID of a user who has not added the bot as a friend or has blocked the bot.
+         *
+         * @param string $roomId Identifier of the room
+         * @param string $userId Identifier of the user
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getRoomMemberProfile($roomId, $userId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getRoomMemberProfile($roomId, $userId);
+        }
+        
+        /**
+         * Gets the user IDs of the members of a group that the bot is in.
+         * 
+         * This includes the user IDs of users who have not added the bot as a friend or has blocked the bot.
+         * 
+         * This feature is only available for LINE@ Approved accounts or official accounts.
+         *
+         * @param string $groupId Identifier of the group
+         * @param string|null $start continuationToken
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getGroupMemberIds($groupId, $start = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getGroupMemberIds($groupId, $start);
+        }
+        
+        /**
+         * Gets the user IDs of the members of a room that the bot is in.
+         * 
+         * This includes the user IDs of users who have not added the bot as a friend or has blocked the bot.
+         * 
+         * This feature is only available for LINE@ Approved accounts or official accounts.
+         *
+         * @param string $roomId Identifier of the room
+         * @param string|null $start continuationToken
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getRoomMemberIds($roomId, $start = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getRoomMemberIds($roomId, $start);
+        }
+        
+        /**
+         * Gets the user IDs of the members of a group that the bot is in.
+         * 
+         * This includes the user IDs of users who have not added the bot as a friend or has blocked the bot.
+         * This method gets all of the members by calling getGroupMemberIds() continually using token
+         * 
+         * This feature is only available for LINE@ Approved accounts or official accounts.
+         *
+         * @param string $groupId Identifier of the group
+         * @return array memberIds
+         * @see \LINE\LINEBot::getGroupMemberIds()
+         * @static 
+         */ 
+        public static function getAllGroupMemberIds($groupId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getAllGroupMemberIds($groupId);
+        }
+        
+        /**
+         * Gets the user IDs of the members of a room that the bot is in.
+         * 
+         * This includes the user IDs of users who have not added the bot as a friend or has blocked the bot.
+         * This method gets all of the members by calling getRoomMemberIds() continually using token
+         * 
+         * This feature is only available for LINE@ Approved accounts or official accounts.
+         *
+         * @param string $roomId Identifier of the room
+         * @return array memberIds
+         * @see \LINE\LINEBot::getRoomMemberIds()
+         * @static 
+         */ 
+        public static function getAllRoomMemberIds($roomId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getAllRoomMemberIds($roomId);
+        }
+        
+        /**
+         * Get group summary
+         * 
+         * Gets the group ID, group name, and group icon URL of a group where the LINE Official Account is a member.
+         *
+         * @param string $groupId Group ID
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getGroupSummary($groupId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getGroupSummary($groupId);
+        }
+        
+        /**
+         * Gets the count of members in a group
+         * 
+         * The number returned excludes the LINE Official Account.
+         *
+         * @param string $groupId Group ID
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getGroupMembersCount($groupId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getGroupMembersCount($groupId);
+        }
+        
+        /**
+         * Gets the count of members in a room
+         * 
+         * The number returned excludes the LINE Official Account.
+         *
+         * @param string $roomId Room ID
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getRoomMembersCount($roomId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getRoomMembersCount($roomId);
+        }
+        
+        /**
+         * Issues a link token used for the account link feature.
+         *
+         * @param string $userId User ID for the LINE account to be linked.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function createLinkToken($userId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->createLinkToken($userId);
+        }
+        
+        /**
+         * Gets a rich menu via a rich menu ID.
+         *
+         * @param string $richMenuId ID of an uploaded rich menu
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getRichMenu($richMenuId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getRichMenu($richMenuId);
+        }
+        
+        /**
+         * Creates a rich menu.
+         * 
+         * You must upload a rich menu image and link the rich menu to a user for the rich menu to be displayed.
+         *
+         * @param \LINE\RichMenuBuilder $richMenuBuilder
+         * @return \Response 
+         * @static 
+         */ 
+        public static function createRichMenu($richMenuBuilder)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->createRichMenu($richMenuBuilder);
+        }
+        
+        /**
+         * Deletes a rich menu.
+         *
+         * @param string $richMenuId ID of an uploaded rich menu
+         * @return \Response 
+         * @static 
+         */ 
+        public static function deleteRichMenu($richMenuId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->deleteRichMenu($richMenuId);
+        }
+        
+        /**
+         * Set the default rich menu.
+         *
+         * @param string $richMenuId ID of an uploaded rich menu
+         * @return \Response 
+         * @static 
+         */ 
+        public static function setDefaultRichMenuId($richMenuId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->setDefaultRichMenuId($richMenuId);
+        }
+        
+        /**
+         * Get the default rich menu ID.
+         *
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getDefaultRichMenuId()
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getDefaultRichMenuId();
+        }
+        
+        /**
+         * Cancel the default rich menu.
+         *
+         * @return \Response 
+         * @static 
+         */ 
+        public static function cancelDefaultRichMenuId()
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->cancelDefaultRichMenuId();
+        }
+        
+        /**
+         * Gets the ID of the rich menu linked to a user.
+         *
+         * @param string $userId User ID. Found in the source object of webhook event objects.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getRichMenuId($userId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getRichMenuId($userId);
+        }
+        
+        /**
+         * Links a rich menu to a user. Only one rich menu can be linked to a user at one time.
+         *
+         * @param string $userId User ID. Found in the source object of webhook event objects.
+         * @param string $richMenuId ID of an uploaded rich menu
+         * @return \Response 
+         * @static 
+         */ 
+        public static function linkRichMenu($userId, $richMenuId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->linkRichMenu($userId, $richMenuId);
+        }
+        
+        /**
+         * Links a rich menu to multiple users.
+         *
+         * @param string[] $userIds Found in the source object of webhook event objects. Max: 150 user IDs.
+         * @param string $richMenuId ID of an uploaded rich menu
+         * @return \Response 
+         * @static 
+         */ 
+        public static function bulkLinkRichMenu($userIds, $richMenuId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->bulkLinkRichMenu($userIds, $richMenuId);
+        }
+        
+        /**
+         * Unlinks a rich menu from multiple user.
+         *
+         * @param string $userId User ID. Found in the source object of webhook event objects.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function unlinkRichMenu($userId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->unlinkRichMenu($userId);
+        }
+        
+        /**
+         * Unlinks rich menus from multiple users.
+         *
+         * @param string[] $userIds Found in the source object of webhook event objects. Max: 150 user IDs.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function bulkUnlinkRichMenu($userIds)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->bulkUnlinkRichMenu($userIds);
+        }
+        
+        /**
+         * Downloads an image associated with a rich menu.
+         *
+         * @param string $richMenuId ID of an uploaded rich menu
+         * @return \Response 
+         * @static 
+         */ 
+        public static function downloadRichMenuImage($richMenuId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->downloadRichMenuImage($richMenuId);
+        }
+        
+        /**
+         * Uploads and attaches an image to a rich menu.
+         * 
+         * Notes:
+         * <ul><li>Images must have one of the following resolutions: 2500x1686 or 2500x843 pixels.</li>
+         * <li>You cannot replace an image attached to a rich menu. To update your rich menu image,
+         * create a new rich menu object and upload another image.</li></ul>
+         *
+         * @param string $richMenuId ID of an uploaded rich menu
+         * @param string $imagePath Path to the image
+         * @param string $contentType image/jpeg or image/png
+         * @return \Response 
+         * @static 
+         */ 
+        public static function uploadRichMenuImage($richMenuId, $imagePath, $contentType)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->uploadRichMenuImage($richMenuId, $imagePath, $contentType);
+        }
+        
+        /**
+         * Gets a list of all uploaded rich menus.
+         *
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getRichMenuList()
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getRichMenuList();
+        }
+        
+        /**
+         * Get number of sent reply messages
+         *
+         * @param \DateTime $datetime Date the messages were sent.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getNumberOfSentReplyMessages($datetime)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getNumberOfSentReplyMessages($datetime);
+        }
+        
+        /**
+         * Get number of sent push messages
+         *
+         * @param \DateTime $datetime Date the messages were sent.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getNumberOfSentPushMessages($datetime)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getNumberOfSentPushMessages($datetime);
+        }
+        
+        /**
+         * Get number of sent multicast messages
+         *
+         * @param \DateTime $datetime Date the messages were sent.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getNumberOfSentMulticastMessages($datetime)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getNumberOfSentMulticastMessages($datetime);
+        }
+        
+        /**
+         * Get number of sent broadcast messages
+         *
+         * @param \DateTime $datetime Date the messages were sent.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getNumberOfSentBroadcastMessages($datetime)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getNumberOfSentBroadcastMessages($datetime);
+        }
+        
+        /**
+         * Get number of message deliveries
+         *
+         * @param \DateTime $datetime Date for which to retrieve number of sent messages.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getNumberOfMessageDeliveries($datetime)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getNumberOfMessageDeliveries($datetime);
+        }
+        
+        /**
+         * Get number of followers
+         *
+         * @param \DateTime $datetime Date for which to retrieve the number of followers.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getNumberOfFollowers($datetime)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getNumberOfFollowers($datetime);
+        }
+        
+        /**
+         * Get friend demographics
+         * 
+         * It can take up to 3 days for demographic information to be calculated.
+         * This means the information the API returns may be 3 days old.
+         * Furthermore, your Target reach number must be at least 20 to retrieve demographic information.
+         *
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getFriendDemographics()
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getFriendDemographics();
+        }
+        
+        /**
+         * Get user interaction statistics
+         * 
+         * Returns statistics about how users interact with broadcast messages sent from your LINE official account.
+         * Interactions are tracked for only 14 days after a message was sent.
+         * The statistics are no longer updated after 15 days.
+         *
+         * @param string $requestId Request ID of broadcast message.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getUserInteractionStatistics($requestId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getUserInteractionStatistics($requestId);
+        }
+        
+        /**
+         * Create channel access token
+         * 
+         * Create a short-lived channel access token.
+         * Up to 30 tokens can be issued.
+         * If the maximum is exceeded,
+         * existing channel access tokens are revoked in the order of when they were first issued.
+         *
+         * @param string $channelId
+         * @return \Response 
+         * @static 
+         */ 
+        public static function createChannelAccessToken($channelId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->createChannelAccessToken($channelId);
+        }
+        
+        /**
+         * Revoke channel access token
+         * 
+         * Revokes a channel access token.
+         *
+         * @param string $channelAccessToken
+         * @return \Response 
+         * @static 
+         */ 
+        public static function revokeChannelAccessToken($channelAccessToken)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->revokeChannelAccessToken($channelAccessToken);
+        }
+        
+        /**
+         * Create channel access token v2.1
+         * 
+         * You can issue up to 30 tokens.
+         * If you reach the maximum limit, additional requests of issuing channel access tokens are blocked.
+         *
+         * @see https://developers.line.biz/en/docs/messaging-api/generate-json-web-token/#generate_jwt
+         * @param string $jwt
+         * @return \Response 
+         * @static 
+         */ 
+        public static function createChannelAccessToken21($jwt)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->createChannelAccessToken21($jwt);
+        }
+        
+        /**
+         * Revoke channel access token v2.1
+         *
+         * @param string $channelId
+         * @param string $channelSecret
+         * @param string $channelAccessToken
+         * @return \Response 
+         * @static 
+         */ 
+        public static function revokeChannelAccessToken21($channelId, $channelSecret, $channelAccessToken)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->revokeChannelAccessToken21($channelId, $channelSecret, $channelAccessToken);
+        }
+        
+        /**
+         * Get all valid channel access token key IDs v2.1
+         *
+         * @param string $jwt
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getChannelAccessToken21Keys($jwt)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getChannelAccessToken21Keys($jwt);
+        }
+        
+        /**
+         * Send Narrowcast message.
+         *
+         * @param \LINE\MessageBuilder $messageBuilder
+         * @param \LINE\RecipientBuilder|null $recipientBuilder
+         * @param \LINE\DemographicFilterBuilder|null $demographicFilterBuilder
+         * @param int|null $limit
+         * @param string|null $retryKey UUID(example: 123e4567-e89b-12d3-a456-426614174000) or Not needed retry(=null)
+         * @return \Response 
+         * @static 
+         */ 
+        public static function sendNarrowcast($messageBuilder, $recipientBuilder = null, $demographicFilterBuilder = null, $max = null, $retryKey = null, $upToRemainingQuota = false)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->sendNarrowcast($messageBuilder, $recipientBuilder, $demographicFilterBuilder, $max, $retryKey, $upToRemainingQuota);
+        }
+        
+        /**
+         * Get Narrowcast message sending progress.
+         *
+         * @param string $requestId
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getNarrowcastProgress($requestId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getNarrowcastProgress($requestId);
+        }
+        
+        /**
+         * Create audience for uploading user IDs
+         *
+         * @param string $description The audience's name. Max character limit: 120
+         * @param array $audiences An array of up to 10,000 user IDs or IFAs.
+         * @param bool $isIfaAudience If this is false (default), recipients are specified by user IDs.
+         * @param string|null $uploadDescription The description to register with the job.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function createAudienceGroupForUploadingUserIds($description, $audiences = [], $isIfaAudience = false, $uploadDescription = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->createAudienceGroupForUploadingUserIds($description, $audiences, $isIfaAudience, $uploadDescription);
+        }
+        
+        /**
+         * Create audience for uploading user IDs (by file)
+         *
+         * @param string $description The audience's name. Max character limit: 120
+         * @param string $filePath A text file path with one user ID or IFA entered per line. Max number: 1,500,000
+         * @param bool $isIfaAudience If this is false (default), recipients are specified by user IDs.
+         * @param string|null $uploadDescription The description to register with the job.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function createAudienceGroupForUploadingUserIdsByFile($description, $filePath, $isIfaAudience = false, $uploadDescription = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->createAudienceGroupForUploadingUserIdsByFile($description, $filePath, $isIfaAudience, $uploadDescription);
+        }
+        
+        /**
+         * Add user IDs or Identifiers for Advertisers (IFAs) to an audience for uploading user IDs
+         *
+         * @param int $audienceGroupId The audience ID.
+         * @param array $audiences An array of up to 10,000 user IDs or IFAs.
+         * @param string|null $uploadDescription The description to register with the job.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function updateAudienceGroupForUploadingUserIds($audienceGroupId, $audiences, $uploadDescription = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->updateAudienceGroupForUploadingUserIds($audienceGroupId, $audiences, $uploadDescription);
+        }
+        
+        /**
+         * Add user IDs or Identifiers for Advertisers (IFAs) to an audience for uploading user IDs (by file)
+         *
+         * @param int $audienceGroupId The audience ID.
+         * @param string $filePath A text file path with one user ID or IFA entered per line. Max number: 1,500,000
+         * @param string|null $uploadDescription The description to register with the job.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function updateAudienceGroupForUploadingUserIdsByFile($audienceGroupId, $filePath, $uploadDescription = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->updateAudienceGroupForUploadingUserIdsByFile($audienceGroupId, $filePath, $uploadDescription);
+        }
+        
+        /**
+         * Create audience for click-based retargeting
+         *
+         * @param string $description The audience's name. Max character limit: 120
+         * @param string $requestId The request ID of a broadcast or narrowcast message sent in the past 60 days.
+         * @param string|null $clickUrl The URL clicked by the user. Max character limit: 2,000
+         * @return \Response 
+         * @static 
+         */ 
+        public static function createAudienceGroupForClick($description, $requestId, $clickUrl = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->createAudienceGroupForClick($description, $requestId, $clickUrl);
+        }
+        
+        /**
+         * Create audience for impression-based retargeting
+         *
+         * @param string $description The audience's name. Max character limit: 120
+         * @param string $requestId The request ID of a broadcast or narrowcast message sent in the past 60 days.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function createAudienceGroupForImpression($description, $requestId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->createAudienceGroupForImpression($description, $requestId);
+        }
+        
+        /**
+         * Rename an audience
+         *
+         * @param int $audienceGroupId The audience ID.
+         * @param string $description The audience's name. Max character limit: 120
+         * @return \Response 
+         * @static 
+         */ 
+        public static function renameAudience($audienceGroupId, $description)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->renameAudience($audienceGroupId, $description);
+        }
+        
+        /**
+         * Delete audience
+         *
+         * @param int $audienceGroupId The audience ID.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function deleteAudience($audienceGroupId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->deleteAudience($audienceGroupId);
+        }
+        
+        /**
+         * Get audience
+         *
+         * @param int $audienceGroupId The audience ID.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getAudience($audienceGroupId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getAudience($audienceGroupId);
+        }
+        
+        /**
+         * Get data for multiple audiences
+         *
+         * @param int $page The page to return when getting (paginated) results. Must be 1 or higher.
+         * @param int $size The number of audiences per page. Max: 40
+         * @param string|null $description You can search for partial matches.
+         * @param string|null $status One of: IN_PROGRESS, READY, FAILED, EXPIRED
+         * @param boolean|null $includesExternalPublicGroups
+         * @param string|null $createRoute How the audience was created. One of: OA_MANAGER, MESSAGING_API
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getAudiences($page, $size = 20, $description = null, $status = null, $includesExternalPublicGroups = null, $createRoute = null)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getAudiences($page, $size, $description, $status, $includesExternalPublicGroups, $createRoute);
+        }
+        
+        /**
+         * Get the authority level of the audience
+         *
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getAuthorityLevel()
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getAuthorityLevel();
+        }
+        
+        /**
+         * Change the authority level of the audience
+         *
+         * @param string $authorityLevel One of: PUBLIC, PRIVATE
+         * @return \Response 
+         * @static 
+         */ 
+        public static function updateAuthorityLevel($authorityLevel)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->updateAuthorityLevel($authorityLevel);
+        }
+        
+        /**
+         * Activate the audience
+         *
+         * @param int $audienceGroupId The audience ID.
+         * @return \Response 
+         * @static 
+         */ 
+        public static function activateAudience($audienceGroupId)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->activateAudience($audienceGroupId);
+        }
+        
+        /**
+         * Get webhook endpoint information
+         *
+         * @return \Response 
+         * @static 
+         */ 
+        public static function getWebhookEndpointInfo()
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->getWebhookEndpointInfo();
+        }
+        
+        /**
+         * Set webhook endpoint URL
+         *
+         * @param string $endpoint
+         * @return \Response 
+         * @static 
+         */ 
+        public static function setWebhookEndpoint($endpoint)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->setWebhookEndpoint($endpoint);
+        }
+        
+        /**
+         * Checks if the configured webhook endpoint can receive a test webhook event
+         *
+         * @param string $endpoint
+         * @return \Response 
+         * @static 
+         */ 
+        public static function testWebhookEndpoint($endpoint)
+        {
+                        /** @var \LINE\LINEBot $instance */
+                        return $instance->testWebhookEndpoint($endpoint);
+        }
+         
+    }
+ 
+}
+
 namespace Revolution\Google\Sheets\Facades { 
 
     /**
@@ -17790,6 +18849,8 @@ namespace  {
     class View extends \Illuminate\Support\Facades\View {}
 
     class Yaml extends \Symfony\Component\Yaml\Yaml {}
+
+    class LINEBot extends \LINE\Laravel\Facade\LINEBot {}
 
     class Sheets extends \Revolution\Google\Sheets\Facades\Sheets {}
  

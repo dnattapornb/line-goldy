@@ -21,16 +21,30 @@ Route::get('/regx', 'DefaultController@regx')->name('default.string');
 /* Line Bot */
 Route::post('/bot', 'LineBotController@index')->name('line.bot.index');
 
-/* User Line */
-Route::get('/user', function () {
+/* Line User */
+Route::get('/user', function ()
+{
     return view('user/index');
-});
+})->name('user');
 
 Route::resource('users', UserController::class)->only([
-    'index', 'show', 'update', 'destroy'
+    'index',
+    'show',
+    'update',
+    'destroy',
 ]);
 
+Route::put('/users/{user}/characters/{character}', 'UserController@updateCharacter')->name('users.characters.update');
+
 Route::get('/test', 'UserController@test')->name('test');
+
+/* Rom Character */
+Route::get('/rom/characters', 'RomController@indexCharacters')->name('rom.index.characters');
+Route::get('/rom/characters/{character}', 'RomController@showCharacters')->name('rom.show.characters');
+
+/* Rom Job */
+Route::get('/rom/jobs', 'RomController@indexJobs')->name('rom.index.jobs');
+Route::get('/rom/jobs/{job}', 'RomController@showJobs')->name('rom.show.jobs');
 
 /* Novel */
 Route::get('/novel', 'NovelController@index')->name('novel.gets');

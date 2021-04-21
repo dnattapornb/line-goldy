@@ -15,7 +15,8 @@
         "grandt/phpepub": "4.0.7.1",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
-        "linecorp/line-bot-sdk": "^4.2",
+        "linecorp/line-bot-sdk": "^7.0",
+        "ramsey/uuid": "^3.9",
         "revolution/laravel-google-sheets": "^4.0",
         "sunra/php-simple-html-dom-parser": "^1.5",
         "symfony/yaml": "^4.4"
