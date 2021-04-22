@@ -47,8 +47,8 @@ class LineBotController extends Controller
     {
         Log::info('LINE_BOT.Start => ');
 
-        $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(env('LINE_MESSAGING_API_CHANNEL_TOKEN', null));
-        $bot = new \LINE\LINEBot($httpClient, ['channelSecret' => env('LINE_MESSAGING_API_CHANNEL_SECRET', null)]);
+        $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(config('line.messaging_api_channel_token'));
+        $bot = new \LINE\LINEBot($httpClient, ['channelSecret' => config('line.messaging_api_channel_secret')]);
         $signature = $_SERVER['HTTP_'.\LINE\LINEBot\Constant\HTTPHeader::LINE_SIGNATURE];
 
         try {
@@ -388,7 +388,7 @@ class LineBotController extends Controller
 
     private function getParty()
     {
-        $spreadsheetId = '1ygx4ykVQkCtV-P-ksPYbekCJizNSRBqDoB4vLndynzY';
+        $spreadsheetId = config('sheets.post_spreadsheet_id');
         $sheetId = 'rom-party';
 
         /** @var Collection $sheets */

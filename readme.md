@@ -84,5 +84,11 @@ php artisan migrate
 php artisan db:seed
 ```
 
+#### Configuration Caching
+> If you execute the `config:cache` command during your deployment process, you should be sure that you are only calling the `.env` function from within your configuration files.
+```bash
+php artisan config:cache
+```
+
 ## Docs
 [https://docs.github.com/en/github/writing-on-github/basic-writing-and-formatting-syntax](https://docs.github.com/en/github/writing-on-github/basic-writing-and-formatting-syntax)
