@@ -53,7 +53,7 @@ return [
         /*
         | Path to service account json file
         */
-        'file' => env('GOOGLE_APPLICATION_CREDENTIALS', '')
+        'file' => env('GOOGLE_SERVICE_ACCOUNT_JSON_LOCATION', '')
     ],
 
     /*
