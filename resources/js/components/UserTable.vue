@@ -14,6 +14,7 @@
                 fixed-header
                 height="100%"
                 :items-per-page="15"
+                @click:row="clicked"
                 class="elevation-1">
             <template v-slot:item.display_name="{ item }">
                 <div :inner-html.prop="item.display_name | highlight(search)"></div>
@@ -31,15 +32,25 @@
                 </v-chip>
 
                 <v-chip
-                        :color="getColor(item.is_friend)"
+                        :color="getColor(item.characters.length)"
                         dark
                 >
-                    <span v-if="item.is_friend">
+                    <!--<span v-if="item.characters.length">
                         <v-icon dark>mdi-account-multiple-check-outline</v-icon>
+                        <span style="font-size: 14px">({{ item.characters.length }})</span>
                     </span>
                     <span v-else>
                         <v-icon dark>mdi-account-multiple-remove-outline</v-icon>
-                    </span>
+                        <span style="font-size: 14px">(0)</span>
+                    </span>-->
+                    <v-btn text v-if="item.characters.length">
+                        <v-icon dark>mdi-account-multiple-check-outline</v-icon>
+                        <span style="margin-left: 5px;">({{ item.characters.length }})</span>
+                    </v-btn>
+                    <v-btn text v-else>
+                        <v-icon dark>mdi-account-multiple-remove-outline</v-icon>
+                        <span style="margin-left: 5px;"> (0)</span>
+                    </v-btn>
                 </v-chip>
             </template>
             <template v-slot:item.action="{ item }">
@@ -418,6 +429,14 @@ export default {
         console.log('Component mounted.');
     },
     methods: {
+        clicked (value) {
+            const index = this.expanded.indexOf(value)
+            if (index === -1) {
+                this.expanded.push(value)
+            } else {
+                this.expanded.splice(index, 1)
+            }
+        },
         initialize() {
             this.getJobs();
             this.getUsers();

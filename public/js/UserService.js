@@ -2234,6 +2234,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'UserTable',
   filters: {
@@ -2371,6 +2382,15 @@ __webpack_require__.r(__webpack_exports__);
     console.log('Component mounted.');
   },
   methods: {
+    clicked: function clicked(value) {
+      var index = this.expanded.indexOf(value);
+
+      if (index === -1) {
+        this.expanded.push(value);
+      } else {
+        this.expanded.splice(index, 1);
+      }
+    },
     initialize: function initialize() {
       this.getJobs();
       this.getUsers();
@@ -38801,7 +38821,8 @@ var render = function() {
           },
           "update:expanded": function($event) {
             _vm.expanded = $event
-          }
+          },
+          "click:row": _vm.clicked
         },
         scopedSlots: _vm._u([
           {
@@ -38850,28 +38871,52 @@ var render = function() {
                 _vm._v(" "),
                 _c(
                   "v-chip",
-                  { attrs: { color: _vm.getColor(item.is_friend), dark: "" } },
+                  {
+                    attrs: {
+                      color: _vm.getColor(item.characters.length),
+                      dark: ""
+                    }
+                  },
                   [
-                    item.is_friend
+                    item.characters.length
                       ? _c(
-                          "span",
+                          "v-btn",
+                          { attrs: { text: "" } },
                           [
                             _c("v-icon", { attrs: { dark: "" } }, [
                               _vm._v("mdi-account-multiple-check-outline")
-                            ])
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "span",
+                              { staticStyle: { "margin-left": "5px" } },
+                              [
+                                _vm._v(
+                                  "(" + _vm._s(item.characters.length) + ")"
+                                )
+                              ]
+                            )
                           ],
                           1
                         )
                       : _c(
-                          "span",
+                          "v-btn",
+                          { attrs: { text: "" } },
                           [
                             _c("v-icon", { attrs: { dark: "" } }, [
                               _vm._v("mdi-account-multiple-remove-outline")
-                            ])
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "span",
+                              { staticStyle: { "margin-left": "5px" } },
+                              [_vm._v(" (0)")]
+                            )
                           ],
                           1
                         )
-                  ]
+                  ],
+                  1
                 )
               ]
             }
