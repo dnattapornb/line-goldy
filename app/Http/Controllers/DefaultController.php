@@ -28,6 +28,7 @@ class DefaultController extends Controller
 
     public function sheet()
     {
+        /*test*/
         $spreadsheetId = config('sheets.post_spreadsheet_id');
         $sheetId = 'line-member';
         $sheetId = 'rom-member';
