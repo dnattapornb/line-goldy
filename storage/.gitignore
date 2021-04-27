@@ -1,0 +1,9 @@
+*
+!.gitignore
+!app/
+!app/*
+!framework/
+!framework/*
+!logs/
+!logs/*
+google-credentials.json

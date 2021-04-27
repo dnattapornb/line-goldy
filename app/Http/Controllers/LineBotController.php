@@ -41,6 +41,8 @@ use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder;
 
 use Revolution\Google\Sheets\Facades\Sheets;
 
+use App\Services\Message;
+
 class LineBotController extends Controller
 {
     public function index()
@@ -79,6 +81,12 @@ class LineBotController extends Controller
                     'friend'      => false,
                 ];
 
+                $group = [
+                    'id'    => '',
+                    'name'  => '',
+                    'users' => [],
+                ];
+
                 // User
                 if (isset($userId) && !empty($userId)) {
                     $userProfile = $bot->getProfile($userId);
@@ -98,13 +106,7 @@ class LineBotController extends Controller
                 if ($event->isGroupEvent()) {
                     Log::info('LINE_BOT.Event.Group');
                     $groupId = $event->getGroupId();
-                    $group = [
-                        'id'    => $groupId,
-                        'name'  => '',
-                        'users' => [],
-                    ];
-                    // $groupMemberIds = $bot->getGroupMemberIds($groupId);
-                    // Log::info('LINE_BOT.GroupMemberIds => ', [$groupMemberIds, $groupMemberIds->getJSONDecodedBody()]);
+                    $group['id'] = $groupId;
 
                     $groupMemberProfile = $bot->getGroupMemberProfile($groupId, $userId);
                     Log::info('LINE_BOT.GroupMemberProfile => ', $groupMemberProfile->getJSONDecodedBody());
@@ -160,8 +162,11 @@ class LineBotController extends Controller
                     }
                     Log::info('LINE_BOT.MentionIds => ', $mentionIds);
 
-                    $messageText = strtolower(trim($event->getText()));
+                    $messageText = trim($event->getText());
                     if ($this->permitUser($userId) && true) {
+                        $message = new Message($userId, $group['id'], $mentionIds, $messageText);
+                        Log::info('LINE_BOT.Message(Object) => ', [print_r($message, true)]);
+
                         $validator = $this->msgPattern($messageText);
                         Log::info('LINE_BOT.TextMessage(validator) => ', $validator);
                         if ($validator['success']) {

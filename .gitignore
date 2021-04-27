@@ -1,6 +1,5 @@
 /node_modules
 /public/storage
-/storage/credentials.json
 /vendor
 .env
 .env.backup
