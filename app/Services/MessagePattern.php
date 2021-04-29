@@ -83,4 +83,21 @@ class MessagePattern
     {
         $this->parameters[$key] = $parameter;
     }
+
+    public function toArray()
+    {
+        $toArray = [
+            'category'   => $this->getCategory(),
+            'command'    => $this->getCommand(),
+            'action'     => $this->getAction(),
+            'parameters' => [],
+        ];
+        if (sizeof($this->getParameters()) > 0) {
+            foreach ($this->getParameters() as $parameter) {
+                $toArray['parameters'][] = $parameter->toArray();
+            }
+        }
+
+        return $toArray;
+    }
 }

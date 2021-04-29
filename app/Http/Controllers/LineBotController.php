@@ -165,7 +165,7 @@ class LineBotController extends Controller
                     $messageText = trim($event->getText());
                     if ($this->permitUser($userId) && true) {
                         $message = new Message($userId, $group['id'], $mentionIds, $messageText);
-                        Log::info('LINE_BOT.Message(Object) => ', [print_r($message, true)]);
+                        Log::info('LINE_BOT.Message(Class) => ', $message->toArray());
 
                         $validator = $this->msgPattern($messageText);
                         Log::info('LINE_BOT.TextMessage(validator) => ', $validator);
@@ -176,7 +176,7 @@ class LineBotController extends Controller
                                     $messageBuilder = new TextMessageBuilder($messages);
                                 }
                                 else {
-                                    $img_url = \Storage::disk('heroku')->url('/__storage/images/go-0.jpg');
+                                    $img_url = \Storage::disk('heroku')->url('/images/go-0.jpg');
                                     $messageBuilder = new ImageMessageBuilder($img_url, $img_url);
                                 }
                             }
@@ -196,13 +196,13 @@ class LineBotController extends Controller
                             case 'ตาย' :
                             {
                                 $i = rand(2, 10);
-                                $sound_url = \Storage::disk('heroku')->url('/__storage/sounds/na_kom/'.$i.'_kills.ogg');
+                                $sound_url = \Storage::disk('heroku')->url('/sounds/na_kom/'.$i.'_kills.ogg');
                                 $messageBuilder = new AudioMessageBuilder($sound_url, 6000);
                                 break;
                             }
                             case 'ไอบาส' :
                             {
-                                $sound_url = \Storage::disk('heroku')->url('/__storage/sounds/na_kom/get_it_on.ogg');
+                                $sound_url = \Storage::disk('heroku')->url('/sounds/na_kom/get_it_on.ogg');
                                 $messageBuilder = new AudioMessageBuilder($sound_url, 6000);
                                 break;
                             }

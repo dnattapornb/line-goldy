@@ -20,8 +20,10 @@ class Message
     private static $groupAction = [];
     /** @var bool */
     private $success = false;
-    /** @var MessagePattern */
+    /** @var MessagePattern|null */
     private $pattern;
+    /** @var MessageRaw[] */
+    private $raw = [];
 
     public function __construct($userId, $groupId, $mentionIds, $message)
     {
@@ -30,19 +32,65 @@ class Message
         self::$mentionIds = $mentionIds;
         self::$message = $message;
 
-        if (!$this->success) {
+        if (!$this->isSuccess()) {
             $this->poemPattern();
         }
 
-        if (!$this->success) {
+        if (!$this->isSuccess()) {
             self::initGroupName();
             $this->bullPattern();
         }
 
-        if (!$this->success) {
+        if (!$this->isSuccess()) {
             self::initGroupAction();
             $this->lineCommandPattern();
+
+            if($this->isSuccess()) {
+                if(sizeof($this->getPattern()) == 0) {
+                    
+                }
+            }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSuccess():bool
+    {
+        return $this->success;
+    }
+
+    /**
+     * @param  bool  $success
+     */
+    public function setSuccess(bool $success):void
+    {
+        $this->success = $success;
+    }
+
+    /**
+     * @return \App\Services\MessagePattern|null
+     */
+    public function getPattern():?\App\Services\MessagePattern
+    {
+        return $this->pattern;
+    }
+
+    /**
+     * @return \App\Services\MessageRaw[]
+     */
+    public function getRaw():array
+    {
+        return $this->raw;
+    }
+
+    /**
+     * @param  \App\Services\MessageRaw  $raw
+     */
+    public function addRaw(\App\Services\MessageRaw $raw):void
+    {
+        $this->raw[] = $raw;
     }
 
     private static function initGroupName()
@@ -132,11 +180,18 @@ class Message
         $pattern = '/(ไ+ป+\s*){3,6}/i';
         preg_match($pattern, self::$message, $matches);
         if (!empty($matches)) {
-            $this->success = true;
+            $this->setSuccess(true);
 
             $this->pattern = new MessagePattern();
             $this->pattern->setCategory('POEM');
             $this->pattern->setCommand('go');
+
+            $raw = new MessageRaw();
+            $raw->setMessage(self::$message);
+            $raw->setPattern($pattern);
+            $raw->setMatches($matches);
+
+            $this->addRaw($raw);
         }
     }
 
@@ -152,11 +207,18 @@ class Message
         if (!empty($matches)) {
             $command = self::getCommandFromGroupName($matches[2] ?? '');
 
-            $this->success = true;
+            $this->setSuccess(true);
 
             $this->pattern = new MessagePattern();
             $this->pattern->setCategory('BULL');
             $this->pattern->setCommand($command);
+
+            $raw = new MessageRaw();
+            $raw->setMessage(self::$message);
+            $raw->setPattern($pattern);
+            $raw->setMatches($matches);
+
+            $this->addRaw($raw);
         }
     }
 
@@ -178,12 +240,19 @@ class Message
             $command = $matches[1];
             $action = self::getActionFromGroupAction($matches[2]);
 
-            $this->success = true;
+            $this->setSuccess(true);
 
             $this->pattern = new MessagePattern();
             $this->pattern->setCategory('LINE-COMMAND');
             $this->pattern->setCommand($command);
             $this->pattern->setAction($action);
+
+            $raw = new MessageRaw();
+            $raw->setMessage(self::$message);
+            $raw->setPattern($pattern);
+            $raw->setMatches($matches);
+
+            $this->addRaw($raw);
 
             // parameters
             if (isset($command) && !empty($command) && isset($action) && !empty($action)) {
@@ -214,6 +283,13 @@ class Message
                             $parameter->setKey($matches[1]);
                             $parameter->setValue(trim($matches[2]));
                             $this->pattern->addParameter($key, $parameter);
+
+                            $raw = new MessageRaw();
+                            $raw->setMessage(self::$message);
+                            $raw->setPattern($pattern);
+                            $raw->setMatches($matches);
+
+                            $this->addRaw($raw);
                         }
                     }
 
@@ -237,6 +313,13 @@ class Message
                             $parameter->setKey($matches[1]);
                             $parameter->setValue(trim($matches[2]));
                             $this->pattern->addParameter($key, $parameter);
+
+                            $raw = new MessageRaw();
+                            $raw->setMessage(self::$message);
+                            $raw->setPattern($pattern);
+                            $raw->setMatches($matches);
+
+                            $this->addRaw($raw);
                         }
                     }
 
@@ -261,11 +344,34 @@ class Message
                                 $parameter->setKey($matches[1]);
                                 $parameter->setValue(self::$mentionIds);
                                 $this->pattern->addParameter($key, $parameter);
+
+                                $raw = new MessageRaw();
+                                $raw->setMessage(self::$message);
+                                $raw->setPattern($pattern);
+                                $raw->setMatches($matches);
+
+                                $this->addRaw($raw);
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    public function toArray()
+    {
+        $toArray = [
+            'success' => $this->isSuccess(),
+            'pattern' => $this->getPattern() ? $this->getPattern()->toArray() : $this->getPattern(),
+            'raw'     => [],
+        ];
+        if (sizeof($this->getRaw()) > 0) {
+            foreach ($this->getRaw() as $raw) {
+                $toArray['raw'][] = $raw->toArray();
+            }
+        }
+
+        return $toArray;
     }
 }

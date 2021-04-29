@@ -72,7 +72,7 @@ return [
         'heroku' => [
             'driver'     => 'local',
             'root'       => storage_path('app/public'),
-            'url'        => env('APP_URL').'/__storage',
+            'url'        => 'http://line-goldy.herokuapp.com/__storage',
             'visibility' => 'public',
         ],
 

@@ -129,16 +129,18 @@ class UserController extends Controller
     {
         // $message = 'ไป ไป ไป ไป';
         // $message = 'ไอเต่า';
-        $message = 'user -l -k=1234567890 -n=บอย BoY_i-i~i -u=';
+        // $message = 'user -l -k=1234567890 -n=บอย BoY_i-i~i -u=';
+        // $message = 'user -l -k=1234567890 -n=บอย BoY_i-i~i -u=@✦ℐõƙōռƓ✦ @tanwa ';
+        $message = 'user-l';
         // $pattern = $this->getMessagePattern($message);
         // dd($pattern);
 
-
         $userId = 'Ua4aca288a98cbaa22161f7ff4aaba88f';
         $groupId = 'C6732c6399f55dcaf00f4a86cc4bb97b5';
-        $mentionIds = ['U915bb59bf9a4a7116b524852b6b46008'] ;
+        $mentionIds = ['U915bb59bf9a4a7116b524852b6b46008'];
         $message = new Message($userId, $groupId, $mentionIds, $message);
         dd($message);
+        dd($message->toArray());
     }
 
     private function getMessagePattern($message)

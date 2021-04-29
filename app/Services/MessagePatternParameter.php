@@ -30,9 +30,9 @@ class MessagePatternParameter
     }
 
     /**
-     * @return string
+     * @return array|string
      */
-    public function getValue():string
+    public function getValue()
     {
         return $this->value;
     }
@@ -43,5 +43,15 @@ class MessagePatternParameter
     public function setValue($value):void
     {
         $this->value = $value;
+    }
+
+    public function toArray()
+    {
+        $toArray = [
+            'key'   => $this->getKey(),
+            'value' => $this->getValue(),
+        ];
+
+        return $toArray;
     }
 }
