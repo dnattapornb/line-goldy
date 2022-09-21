@@ -27,6 +27,6 @@
     "dependencies": {
         "vue-axios": "^3.2.4",
         "vue-material": "^1.0.0-beta-15",
-        "vuetify": "^2.4.4"
+        "vuetify": "^2.6.10"
     }
 }
