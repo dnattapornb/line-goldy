@@ -46,6 +46,9 @@ mkdir storage/app/public
 ln -s "target_path" "link_path"
 ln -s /Users/nattaporn.d/Desktop/__NOVEL__/novel storage/app/public/novel
 ln -s /Users/nattaporn.d/Desktop/__NOVEL__/tmp storage/app/public/tmp
+
+ln -s /Users/nattaporn.d/Desktop/__BOOK__/book storage/app/public/book
+ln -s /Users/nattaporn.d/Desktop/__BOOK__/tmp storage/app/public/tmp
 ```
 
 ### Symbolic link directory `public`

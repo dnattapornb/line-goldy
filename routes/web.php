@@ -37,6 +37,9 @@ Route::resource('users', UserController::class)->only([
 Route::put('/users/{user}/characters/{character}', 'UserController@updateCharacter')->name('users.characters.update');
 
 Route::get('/test', 'UserController@test')->name('test');
+Route::get('/report/hotel', 'DefaultController@reportGroupHotel')->name('report-group-hotel');
+Route::get('/report/hotel-channel', 'DefaultController@reportGroupHotelChannel')->name('report-group-hotel-channel');
+Route::get('/my-novel', 'DefaultController@myNovel')->name('my-novel');
 
 /* Rom Character */
 Route::get('/rom/characters', 'RomController@indexCharacters')->name('rom.index.characters');
@@ -48,5 +51,6 @@ Route::get('/rom/jobs/{job}', 'RomController@showJobs')->name('rom.show.jobs');
 
 /* Novel */
 Route::get('/novel', 'NovelController@index')->name('novel.gets');
-Route::get('/novel/{code}', 'NovelController@show')->name('novel.ebook');
+Route::get('/novel/{code}', 'NovelController@show')->name('novel.convert');
+Route::get('/novel/{code}/check', 'NovelController@check')->name('novel.check');
 Route::get('/file', 'NovelController@file')->name('novel.files');

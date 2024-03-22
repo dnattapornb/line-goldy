@@ -5,7 +5,11 @@ namespace App\Services;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Yaml\Yaml;
 
-class NovelService
+use DateTime;
+use Exception;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+
+class Book
 {
     /** @var PathFile[] */
     private $path;
@@ -22,8 +26,10 @@ class NovelService
     {
         $this->path = [
             'configs' => new PathFile('public', 'novel/configs/', 'configs.yaml'),
+            // 'configs' => new PathFile('public', 'book/configs/', 'configs.yaml'),
             'source'  => new PathFile('download'),
             'target'  => new PathFile('public', 'novel/lists/'),
+            // 'target'  => new PathFile('public', 'book/novel/'),
         ];
 
         $this->extensions = [
@@ -44,7 +50,7 @@ class NovelService
                 $configs = Yaml::parse(Storage::disk($this->path['configs']->getDisks())->get($this->path['configs']->getRelativeFilePath()));
                 $this->chapterNames = $configs['default']['chapterNames'] ?? [];
                 $novels = $configs['novels'] ?? [];
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dump('Novel Configurations!');
                 dd($e->getCode(), $e->getMessage(), $e);
             }
@@ -95,14 +101,11 @@ class NovelService
      */
     public function getNovels($code = null)
     {
-        $novels = [];
-        if (!isset($code) || empty($code)) {
-            $novels = $this->novels;
-        }
-        else {
+        $novels = $this->novels;
+        if (isset($code) && !empty($code)) {
             if (sizeof($this->novels) > 0) {
                 foreach ($this->novels as $novel) {
-                    if ($novel->getCode() == $code) {
+                    if ($novel->getCode() === $code) {
                         $novels = [];
                         $novels[] = $novel;
                         break;
@@ -119,10 +122,9 @@ class NovelService
      *
      * @return array
      */
-    public function getNovelFileNames($code = null):array
+    public function getFileNames($code = null):array
     {
         $fileNames = [];
-        /** @var Novel[] $novels */
         $novels = $this->getNovels($code);
         foreach ($novels as $novel) {
             $fileNames = array_merge($fileNames, $novel->getFileNames());
@@ -149,10 +151,9 @@ class NovelService
      *
      * @return string|null
      */
-    public function getCodeFromFileName($fileName)
+    public function getNovelCode($fileName)
     {
         $code = null;
-        /** @var Novel[] $novels */
         $novels = $this->getNovels($code);
         foreach ($novels as $novel) {
             if (in_array($fileName, $novel->getFileNames())) {

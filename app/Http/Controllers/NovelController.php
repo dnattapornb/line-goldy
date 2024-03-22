@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Libraries\Doc2Txt;
 
-use App\Services\NovelService;
+use App\Services\Book;
 use App\Services\Novel;
 use App\Services\FileConverter;
 use App\Services\ChapterContent;
@@ -25,32 +25,38 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Yaml\Yaml;
 
+use DateTime;
 use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use DateTime;
 
 class NovelController extends Controller
 {
-    private $novelService;
+    private $book;
+    private $chapterFileDirectories = ['xhtml', 'txt'];
+    private $chapterFileExtensions = ['html', 'xhtml', 'txt'];
 
     public function __construct()
     {
         // Fix, Maximum execution time of 180 seconds exceeded
         ini_set('max_execution_time', 180);
 
-        $this->novelService = new NovelService();
-        // dd($this->novelService);
+        $this->book = new Book();
+        // dd($this->book);
     }
 
     public function index()
     {
-        $novels = $this->novelService->getNovels();
-        dd($novels, $this->novelService->toArray()['novels']);
+        $text = '0543-03.xhtml';
+        $chapterDetails = $this->getChapterDetails($text);
+        dd($chapterDetails);
+        exit();
+        $novels = $this->book->getNovels();
+        dd($novels, $this->book->toArray()['novels']);
     }
 
     public function show(string $code)
     {
-        $novels = $this->novelService->getNovels($code);
+        $novels = $this->getNovels($code);
         try {
             foreach ($novels as $novel) {
                 /** @var ChapterContent[] $chapters */
@@ -100,6 +106,9 @@ class NovelController extends Controller
                         }
                     }
                 }
+                // dd($chapters['tfs0001']);
+                // dd($chapters['tfs0002']);
+                // dd($chapters);
                 $novel->setChapters($chapters);
             }
         } catch (Exception $e) {
@@ -117,13 +126,61 @@ class NovelController extends Controller
         }
     }
 
+    public function check(string $code)
+    {
+        $novels = $this->getNovels($code);
+        $__Novels = [];
+        try {
+            foreach ($novels as $novel) {
+                // dd($novel->getCode(), $novel->getTitle());
+                $__Novels[$novel->getCode()] = [];
+                foreach ($novel->getPath() as $k => $path) {
+                    if (in_array($k, ['text'])) {
+                        $exists = Storage::disk($path->getDisks())->exists($path->getRelativeFilePath());
+                        if ($exists) {
+                            $files = Storage::disk($path->getDisks())->files($path->getRelativeFilePath());
+                            $__Novels[$novel->getCode()]['text'] = [];
+                            foreach ($files as $file) {
+                                $fileName = basename($file);
+                                if (!in_array($fileName, ['.DS_Store'])) {
+                                    /**
+                                     * $pattern = "/(\d+)([\-|\.]?)(\d*)\.(.*?)$/"
+                                     * $file = "0001.xhtml"
+                                     * $matches = [
+                                     *      0 => "543-1.xhtml"
+                                     *      1 => "543"
+                                     *      2 => "-"
+                                     *      3 => "1"
+                                     *      4 => "xhtml"
+                                     * ]
+                                     */
+                                    $pattern = '/(\d+)\s*([\-|\.]?)\s*(\d*)\.(.*?)$/';
+                                    preg_match($pattern, $fileName, $matches);
+                                    if (!empty($matches)) {
+                                        $_INDEX_ = $this->convertZeroFill(intval($matches[1]));
+                                        $__Novels[$novel->getCode()]['text'][$_INDEX_] = $matches[1];
+                                    }
+                                }
+                            }
+                            ksort($__Novels[$novel->getCode()]['text']);
+                        }
+                    }
+                }
+                dd($this->missingChapters($__Novels[$novel->getCode()]['text']));
+                dd($__Novels);
+            }
+        } catch (Exception $e) {
+            dd($e->getCode(), $e->getMessage(), $e);
+        }
+    }
+
     /**
      * @return \Illuminate\Http\JsonResponse
      */
     public function file()
     {
         try {
-            $files = Storage::disk($this->novelService->getPath()['source']->getDisks())->files('');
+            $files = Storage::disk($this->book->getPath()['source']->getDisks())->files('');
             // dd($files);
             foreach ($files as $file) {
                 /**
@@ -140,7 +197,7 @@ class NovelController extends Controller
                 $pattern .= '(.*?)';
                 $pattern .= '\.';
                 $pattern .= '(';
-                $pattern .= implode('|', $this->novelService->getExtensions());
+                $pattern .= implode('|', $this->book->getExtensions());
                 $pattern .= ')';
                 $pattern .= '$/i';
                 preg_match($pattern, $file, $matches);
@@ -151,7 +208,7 @@ class NovelController extends Controller
                     $fileExtension = strtolower($matches[2]);
 
                     $fileConverter = new FileConverter();
-                    $source = new PathFile($this->novelService->getPath()['source']->getDisks(), '', $file);
+                    $source = new PathFile($this->book->getPath()['source']->getDisks(), '', $file);
                     $fileConverter->setSource($source);
 
                     if (isset($fileExtension) && !empty($fileExtension)) {
@@ -172,7 +229,7 @@ class NovelController extends Controller
                             $pattern = '';
                             $pattern .= '/';
                             $pattern .= '(';
-                            $pattern .= implode('|', $this->novelService->getNovelFileNames());
+                            $pattern .= implode('|', $this->book->getFileNames());
                             $pattern .= ')';
                             $pattern .= '\s*';
                             $pattern .= '((\d+)\s*(\-?)\s*(\d*))';
@@ -184,7 +241,7 @@ class NovelController extends Controller
                                 $separate = $matches[4];
                                 $end = $matches[5];
 
-                                $code = $this->novelService->getCodeFromFileName($fileName);
+                                $code = $this->book->getNovelCode($fileName);
                                 if (isset($code) && !empty($code)) {
                                     $relative = 'novel/lists/'.$code.'/chapters/raw/';
                                     $fileConverter->setCode($code);
@@ -199,8 +256,8 @@ class NovelController extends Controller
                                                 $targetName = trim($start).trim($separate).trim('').'.'.$fileExtension;
                                             }
                                             $count = ($end - $start) + 1;
-                                            
-                                            if(!is_int($count) || intval($count) <= 0) {
+
+                                            if (!is_int($count) || intval($count) <= 0) {
                                                 dd($count, $relative, $matches);
                                             }
 
@@ -208,7 +265,7 @@ class NovelController extends Controller
                                             $fileConverter->getChapter()->setEnd($end);
                                             $fileConverter->getChapter()->setCount($count);
 
-                                            $target = new PathFile($this->novelService->getPath()['target']->getDisks(), $relative, $targetName);
+                                            $target = new PathFile($this->book->getPath()['target']->getDisks(), $relative, $targetName);
                                             $target->setExtensions($fileExtension);
                                             $fileConverter->setTarget($target);
 
@@ -234,7 +291,7 @@ class NovelController extends Controller
                                             $relative .= '__ELSE/';
                                         }
 
-                                        $target = new PathFile($this->novelService->getPath()['target']->getDisks(), $relative, $file);
+                                        $target = new PathFile($this->book->getPath()['target']->getDisks(), $relative, $file);
                                         $target->setExtensions($fileExtension);
                                         $fileConverter->setTarget($target);
                                     }
@@ -259,7 +316,7 @@ class NovelController extends Controller
                                     $relative .= '__ELSE/';
                                 }
 
-                                $target = new PathFile($this->novelService->getPath()['target']->getDisks(), $relative, $file);
+                                $target = new PathFile($this->book->getPath()['target']->getDisks(), $relative, $file);
                                 $target->setExtensions($fileExtension);
                                 $fileConverter->setTarget($target);
                             }
@@ -279,7 +336,7 @@ class NovelController extends Controller
                                 $relative .= '__ELSE/';
                             }
 
-                            $target = new PathFile($this->novelService->getPath()['target']->getDisks(), $relative, $file);
+                            $target = new PathFile($this->book->getPath()['target']->getDisks(), $relative, $file);
                             $target->setExtensions($fileExtension);
                             $fileConverter->setTarget($target);
                         }
@@ -287,12 +344,12 @@ class NovelController extends Controller
                     else {
                         throw new Exception('Error, empty file extension on : ['.$file.']', 7000);
                     }
-                    $this->novelService->addFileConverters($fileConverter);
+                    $this->book->addFileConverters($fileConverter);
                 }
             }
 
-            if (sizeof($this->novelService->getFileConverters()) > 0) {
-                foreach ($this->novelService->getFileConverters() as $fileConverter) {
+            if (sizeof($this->book->getFileConverters()) > 0) {
+                foreach ($this->book->getFileConverters() as $fileConverter) {
                     $backup = true;
                     if ($fileConverter->getCode()) {
                         $backup = false;
@@ -348,12 +405,31 @@ class NovelController extends Controller
             dump($e->getCode(), $e->getMessage(), $e);
         }
 
-        return Response()->json($this->novelService->toArray());
+        return Response()->json($this->book->toArray());
     }
 
     /*
      * Function.
      * ------------------------------------------------------------- */
+    private function missingChapters($arrs)
+    {
+        // construct a new array
+        $new_arr = range(array_keys($arrs)[0], max(array_keys($arrs)));
+
+        // use array_diff to find the missing elements
+        return array_diff($new_arr, array_values($arrs));
+    }
+
+    /**
+     * @param  string|null  $code
+     *
+     * @return \App\Services\Novel[]
+     */
+    private function getNovels(string $code)
+    {
+        return $this->book->getNovels($code);
+    }
+
     /**
      * @param  \App\Services\FileConverter  $fileConverter
      */
@@ -438,17 +514,20 @@ class NovelController extends Controller
                             if (!empty($chapter)) {
                                 $index++;
                                 $chapter = $this->validateChapter($chapter, $extension);
-                                $relative = $this->novelService->getPath()['target']->getRelativePath().$code.'/chapters/text/';
+                                $relative = $this->book->getPath()['target']->getRelativePath().$code.'/chapters/text/';
 
                                 $chapterContents[$index] = new ChapterContent();
                                 $chapterContents[$index]->setId($chapter['id']);
                                 $chapterContents[$index]->setName($chapter['name']);
                                 $chapterContents[$index]->setContents([]);
-                                $target = new PathFile($this->novelService->getPath()['target']->getDisks(), $relative, $chapter['fileName']);
+                                $target = new PathFile($this->book->getPath()['target']->getDisks(), $relative, $chapter['fileName']);
                                 $target->setExtensions($extension);
                                 $chapterContents[$index]->setTarget($target);
                             }
                             else {
+                                if ($index === -1) {
+                                    throw new Exception('Undefined offset: -1 is ['.$code.'] ['.$contents[0].']', 7000);
+                                }
                                 $chapterContents[$index]->addContents($content);
                             }
                         }
@@ -466,6 +545,9 @@ class NovelController extends Controller
                 if ($body->find('h1.chapter_hidden', 0)) {
                     $title = $body->find('h1.chapter_hidden', 0)->plaintext;
                 }
+                elseif ($body->find('h1.volume_heading', 0)) {
+                    $title = $body->find('h1.volume_heading', 0)->plaintext;
+                }
 
                 $name = null;
                 if ($body->find('h3.chapter_heading', 0)) {
@@ -475,9 +557,9 @@ class NovelController extends Controller
                     throw new Exception('Error, chapter name ['.$text.'], on ['.$code.']', 7000);
                 }
 
-                $chapter = $this->isChapter($name, $code);
+                $chapter = $this->isChapter($name, $code, true);
                 $chapter = $this->validateChapter($chapter, $extension);
-                $relative = $this->novelService->getPath()['target']->getRelativePath().$code.'/chapters/text/';
+                $relative = $this->book->getPath()['target']->getRelativePath().$code.'/chapters/text/';
 
                 $chapterContents[$index] = new ChapterContent();
                 $chapterContents[$index]->setId($chapter['id']);
@@ -486,7 +568,7 @@ class NovelController extends Controller
                 }
                 $chapterContents[$index]->setName($chapter['name']);
                 $chapterContents[$index]->setContents([]);
-                $target = new PathFile($this->novelService->getPath()['target']->getDisks(), $relative, $chapter['fileName']);
+                $target = new PathFile($this->book->getPath()['target']->getDisks(), $relative, $chapter['fileName']);
                 $target->setExtensions($extension);
                 $chapterContents[$index]->setTarget($target);
                 foreach ($body->find('p') as $element) {
@@ -535,6 +617,7 @@ class NovelController extends Controller
          *      2 => "1"
          *      3 => ""
          *      4 => "ชื่อของเขาคือป๋ายเสี่ยวฉุน"
+         *      5 => ""
          * ]
          *
          * $text = "ตอนที่ 951 ราชาใบไม้สีทองตัวจริงกับตัวปลอม (1)"
@@ -543,22 +626,36 @@ class NovelController extends Controller
          *      1 => "ตอนที่"
          *      2 => "951"
          *      3 => ""
-         *      4 => "ราชาใบไม้สีทองตัวจริงกับตัวปลอม (1)"
+         *      4 => "ราชาใบไม้สีทองตัวจริงกับตัวปลอม"
+         *      5 => "1"
          * ]
          *
          * $text = "บทที่ 657.3 ช่วยคนสำเร็จ"
+         * $text = "บทที่ 657-3 ช่วยคนสำเร็จ"
          * $matches = [
          *      0 => "บทที่ 657.3 ช่วยคนสำเร็จ"
          *      1 => "บทที่"
          *      2 => "657"
          *      3 => "3"
          *      4 => "ช่วยคนสำเร็จ"
+         *      5 => ""
+         * ]
+         *
+         * $text = "ตอนที่ 729-2 ระยะที่สอง (1)"
+         * $matches = [
+         *      0 => "ตอนที่ 729-2 ระยะที่สอง (1)"
+         *      1 => "ตอนที่"
+         *      2 => "729"
+         *      3 => "1"
+         *      4 => "ระยะที่สอง"
+         *      5 => "1"
          * ]
          */
         $pattern = '/^(';
-        $pattern .= implode('|', $this->novelService->getChapterNames($code));
+        $pattern .= implode('|', $this->book->getChapterNames($code));
         $pattern .= ')';
-        $pattern .= '\s*(\d+)\s*\.?\-?\s*(\d+)*\s*\:?\s*(.*?)$/i';
+        // $pattern .= '\s*(\d+)\s*\.?\-?\s*(\d+)*\s*\:?\s*(.*?)$/i';
+        $pattern .= '\s*(\d+)\.?\-?(\d+)*\s*\:?\s*(.*?)\(??(\d*)\)?$/i';
         preg_match($pattern, $text, $matches);
         if ($error) {
             if (!isset($matches[2])) {
@@ -578,6 +675,49 @@ class NovelController extends Controller
      */
     private function validateChapter(array $chapter, $extension = 'txt')
     {
+        /**
+         * $pattern = "/^(ตอนที่|บทที่)\s*(\d+)\s*\.?\-?\s*(\d+)*\s*\:?\s*(.*?)$/i"
+         * $text = "บทที่ 1 ชื่อของเขาคือป๋ายเสี่ยวฉุน"
+         * $matches = [
+         *      0 => "บทที่ 1 ชื่อของเขาคือป๋ายเสี่ยวฉุน"
+         *      1 => "บทที่"
+         *      2 => "1"
+         *      3 => ""
+         *      4 => "ชื่อของเขาคือป๋ายเสี่ยวฉุน"
+         *      5 => ""
+         * ]
+         *
+         * $text = "ตอนที่ 951 ราชาใบไม้สีทองตัวจริงกับตัวปลอม (1)"
+         * $matches = [
+         *      0 => "ตอนที่ 951 ราชาใบไม้สีทองตัวจริงกับตัวปลอม (1)"
+         *      1 => "ตอนที่"
+         *      2 => "951"
+         *      3 => ""
+         *      4 => "ราชาใบไม้สีทองตัวจริงกับตัวปลอม"
+         *      5 => "1"
+         * ]
+         *
+         * $text = "บทที่ 657.3 ช่วยคนสำเร็จ"
+         * $text = "บทที่ 657-3 ช่วยคนสำเร็จ"
+         * $matches = [
+         *      0 => "บทที่ 657.3 ช่วยคนสำเร็จ"
+         *      1 => "บทที่"
+         *      2 => "657"
+         *      3 => "3"
+         *      4 => "ช่วยคนสำเร็จ"
+         *      5 => ""
+         * ]
+         *
+         * $text = "ตอนที่ 729-2 ระยะที่สอง (1)"
+         * $matches = [
+         *      0 => "ตอนที่ 729-2 ระยะที่สอง (1)"
+         *      1 => "ตอนที่"
+         *      2 => "729"
+         *      3 => "1"
+         *      4 => "ระยะที่สอง"
+         *      5 => "1"
+         * ]
+         */
         $data = [
             'id'       => null,
             'name'     => null,
@@ -594,19 +734,33 @@ class NovelController extends Controller
                 throw new Exception('Error, empty chapter[2] ['.serialize($chapter).']', 7000);
             }
 
-            // 567
-            $data['id'] = $chapter[2];
+            // ตอนที่ 567 การเปลี่ยนแปลง
+            $chapterName = $chapter[1].' '.$chapter[2].' '.trim($chapter[4]);
 
-            // 567-0, 567-1
+            // 567.txt
+            $fileName = $data['id'] = $chapter[2];
+
             if (isset($chapter[3]) && !empty($chapter[3])) {
                 $data['id'] = $chapter[2].'-'.$chapter[3];
+                // 567-1.txt
+                $fileName = $chapter[2].'-'.$chapter[3];
+                // บทที่ 567-1 การเปลี่ยนแปลง
+                $chapterName = $chapter[1].' '.$data['id'].' '.trim($chapter[4]);
+            }
+
+            if (isset($chapter[5]) && !empty($chapter[5])) {
+                $data['id'] = $chapter[2].'-'.$chapter[5];
+                // 567-1.txt
+                $fileName = $chapter[2].'-'.$chapter[5];
+                // บทที่ 567 การเปลี่ยนแปลง (1)
+                $chapterName = $chapter[1].' '.$chapter[2].' '.trim($chapter[4]).' ('.$chapter[5].')';
             }
 
             // บทที่ 567-1 การเปลี่ยนแปลง (1)
-            $data['name'] = $chapter[1].' '.$data['id'].' '.trim($chapter[4]);
+            $data['name'] = $chapterName;
 
             // 567-1.xhtml
-            $data['fileName'] = $data['id'].'.'.$extension;
+            $data['fileName'] = $fileName.'.'.$extension;
         }
 
         return $data;
@@ -623,7 +777,7 @@ class NovelController extends Controller
     {
         /**
          * $pattern = "/(\d+)([\-|\.]?)(\d*)$/"
-         * $file = "0091.1"
+         * $number = "0091.1"
          * $matches = [
          *      0 => "0091.1"
          *      1 => "0091"
@@ -642,6 +796,87 @@ class NovelController extends Controller
         }
 
         return $number;
+    }
+
+    /**
+     * @param  int  $number
+     * @param  int  $length
+     *
+     * @return string
+     */
+    private function zeroFill(int $number, int $length = 4)
+    {
+        return str_pad(intval($number), $length, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * @param  string  $text
+     * @param  string  $case
+     *
+     * @return array
+     */
+    private function getChapterDetails(string $text, $case = 'FILE_NAME')
+    {
+        $chapterDetails = [
+            'success'   => false,
+            'id'        => null,
+            'subId'     => null,
+            'fileName'  => null,
+            'extension' => null,
+        ];
+        if ($case === 'FILE_NAME') {
+            /**
+             * $pattern = "/(\d+)([\-|\.]?)\s*(\d*)\.(html|xhtml|txt)$/i"
+             * $text = "0543-03.xhtml"
+             * $matches = [
+             *      0 => "0543-03.xhtml"
+             *      1 => "0543"
+             *      2 => "-"
+             *      3 => "03"
+             *      4 => "xhtml"
+             * ]
+             */
+            $pattern = '';
+            $pattern .= '/';
+            $pattern .= '(\d+)';
+            $pattern .= '([\-|\.]?)\s*(\d*)';
+            $pattern .= '\.';
+            $pattern .= '(';
+            $pattern .= implode('|', $this->chapterFileExtensions);
+            $pattern .= ')';
+            $pattern .= '$/i';
+
+            preg_match($pattern, $text, $matches);
+            dd($pattern, $text, $matches);
+            if (!empty($matches)) {
+                $id = null;
+                $subId = null;
+                $fileName = '';
+
+                if (isset($matches['1']) && !empty($matches['1'])) {
+                    $id = intval($matches['1']);
+                    $fileName .= $this->zeroFill($id, 4);
+                }
+
+                if (isset($matches['3']) && !empty($matches['3'])) {
+                    $subId = intval($matches['3']);
+                    $fileName .= '-';
+                    $fileName .= $this->zeroFill($subId, 2);
+                }
+
+                $chapterDetails = [
+                    'success'   => true,
+                    'id'        => $id,
+                    'subId'     => $subId,
+                    'fileName'  => $fileName,
+                    'extension' => $matches['4'],
+                ];
+            }
+        }
+        elseif ($case === 'TITLE_NAME') {
+        }
+
+        return $chapterDetails;
     }
 
     /**
@@ -672,19 +907,19 @@ class NovelController extends Controller
         CalibreHelper::setCalibreMetadata($book, $novel->getTitle(), '5');
 
         // A book need styling, in this case we use static text, but it could have been a file.
-        $css = Storage::disk($this->novelService->getPath()['configs']->getDisks())->get($this->novelService->getPath()['configs']->getRelativePath().'styles/style.css');
+        $css = Storage::disk($this->book->getPath()['configs']->getDisks())->get($this->book->getPath()['configs']->getRelativePath().'styles/style.css');
         $book->addCSSFile('Styles/style.css', 'css1', $css);
 
-        $fonts = Storage::disk($this->novelService->getPath()['configs']->getDisks())->get($this->novelService->getPath()['configs']->getRelativePath().'fonts/THSarabunNewest2.otf');
+        $fonts = Storage::disk($this->book->getPath()['configs']->getDisks())->get($this->book->getPath()['configs']->getRelativePath().'fonts/THSarabunNewest2.otf');
         $book->addFile('Fonts/THSarabunNewest2.otf', 'font1', $fonts, 'application/vnd.ms-opentype');
 
-        $fontsBold = Storage::disk($this->novelService->getPath()['configs']->getDisks())->get($this->novelService->getPath()['configs']->getRelativePath().'fonts/THSarabunNewest2-Bold.otf');
+        $fontsBold = Storage::disk($this->book->getPath()['configs']->getDisks())->get($this->book->getPath()['configs']->getRelativePath().'fonts/THSarabunNewest2-Bold.otf');
         $book->addFile('Fonts/THSarabunNewest2-Bold.otf', 'font2', $fontsBold, 'application/vnd.ms-opentype');
 
-        $fontsItalic = Storage::disk($this->novelService->getPath()['configs']->getDisks())->get($this->novelService->getPath()['configs']->getRelativePath().'fonts/THSarabunNewest2-Italic.otf');
+        $fontsItalic = Storage::disk($this->book->getPath()['configs']->getDisks())->get($this->book->getPath()['configs']->getRelativePath().'fonts/THSarabunNewest2-Italic.otf');
         $book->addFile('Fonts/THSarabunNewest2-Italic.otf', 'font3', $fontsItalic, 'application/vnd.ms-opentype');
 
-        $fontsBoldItalic = Storage::disk($this->novelService->getPath()['configs']->getDisks())->get($this->novelService->getPath()['configs']->getRelativePath().'fonts/THSarabunNewest2-BoldItalic.otf');
+        $fontsBoldItalic = Storage::disk($this->book->getPath()['configs']->getDisks())->get($this->book->getPath()['configs']->getRelativePath().'fonts/THSarabunNewest2-BoldItalic.otf');
         $book->addFile('Fonts/THSarabunNewest2-BoldItalic.otf', 'font4', $fontsBoldItalic, 'application/vnd.ms-opentype');
 
         // Add cover page
@@ -703,7 +938,12 @@ class NovelController extends Controller
             dd($e->getCode(), $e->getMessage(), $e);
         }
 
-        foreach ($novel->getChapters() as $chapter) {
+        // Sort array of objects by object fields
+        // https://stackoverflow.com/questions/4282413/sort-array-of-objects-by-object-fields
+        $__Chapters = $novel->getChapters();
+        usort($__Chapters, function ($a, $b) { return strcmp($a->getId(), $b->getId()); });
+        // foreach ($novel->getChapters() as $chapter) {
+        foreach ($__Chapters as $chapter) {
             if (strlen($chapter->getName()) <= 0) {
                 throw new Exception('Error, chapter\'s name is ['.$chapter->getName().']', 7000);
             }
@@ -731,6 +971,15 @@ class NovelController extends Controller
                 $chapterData = $description = Storage::disk($chapter->getTarget()->getDisks())->get($chapter->getTarget()->getRelativeFilePath());
             }
 
+            // Convert "txt" to "xhtml"
+            if ($chapter->getTarget()->getExtensions() === 'txt') {
+                $xhtmlFilePath = $novel->getPath()['xhtml']->getRelativePath().$this->convertZeroFill($chapter->getId()).'.xhtml';
+                $xhtmlExist = Storage::disk($chapter->getTarget()->getDisks())->exists($xhtmlFilePath);
+                if (!$xhtmlExist) {
+                    Storage::disk($chapter->getTarget()->getDisks())->put($xhtmlFilePath, $chapterData);
+                }
+            }
+
             // Add Part -> Chapter
             $isChapterTitle = true;
             if ($chapterTitle && strlen($chapterTitle) > 0 && $isChapterTitle) {
@@ -749,10 +998,10 @@ class NovelController extends Controller
             $bookName = $bookName.' [End]';
         }
         else {
-            $chapters = array_values($novel->getChapters());
-            $cnt = sizeof($chapters);
-            $start = (intval($chapters[0]->getId()) != 0) ? intval($chapters[0]->getId()) : 1;
-            $end = $chapters[$cnt - 1]->getId();
+            // $chapters = array_values($novel->getChapters());
+            $cnt = sizeof($__Chapters);
+            $start = (intval($__Chapters[0]->getId()) != 0) ? intval($__Chapters[0]->getId()) : 1;
+            $end = $__Chapters[$cnt - 1]->getId();
             $bookName = $bookName.' '.intval($start).'-'.intval($end);
         }
         // $zipData = $book->sendBook(trim($bookName));

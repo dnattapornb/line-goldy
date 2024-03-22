@@ -4,6 +4,10 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
 
+use DateTime;
+use Exception;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+
 class Novel
 {
     /** @var array */
@@ -34,6 +38,7 @@ class Novel
         $this->setCode($code);
         $this->addFileName($code);
         $this->path = [
+            // 'raw'         => new PathFile('public', 'novel/lists/'.$code.'/chapters/raw/'),
             'xhtml'       => new PathFile('public', 'novel/lists/'.$code.'/chapters/xhtml/'),
             'text'        => new PathFile('public', 'novel/lists/'.$code.'/chapters/text/'),
             'cover'       => new PathFile('public', 'novel/lists/'.$code.'/cover/', 'cover.jpg'),

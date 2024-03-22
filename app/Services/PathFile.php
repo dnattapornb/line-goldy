@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use File;
 use Illuminate\Support\Facades\Storage;
 
 class PathFile
@@ -20,6 +21,8 @@ class PathFile
     private $mimeType;
     /** @var array */
     private $size = ['bytes' => null, 'units' => null];
+    /** @var array */
+    private $lastModified = ['timestamp' => null, 'datetime' => null];
 
     public function __construct($disks, $relative = null, $file = null)
     {
@@ -91,13 +94,49 @@ class PathFile
 
     public function checkFile():void
     {
+        /*$a = 'novel/lists/apo/chapters/raw';
+        $exists = Storage::disk($this->getDisks())->exists($a);
+        if(!$exists) {
+            $b = File::makeDirectory($this->getBase().$a, 0777, true);
+            // $b = Storage::disk($this->getDisks())->makeDirectory($this->getRelativeFilePath());
+            $exists1 = Storage::disk($this->getDisks())->exists($a);
+            dump($this->getBase());
+            dump($a, $exists);
+            dd($b, $exists1);_
+        }*/
         $exists = Storage::disk($this->getDisks())->exists($this->getRelativeFilePath());
+        /*if(!$exists) {
+            $pattern = '/novel\/lists\/(.*?)\/cover\/cover\.(jpg|jpeg)$/i';
+            preg_match($pattern, $this->getRelativeFilePath(), $matches);
+            if (!empty($matches)) {
+                $code = $matches[1];
+                $file = 'cover.jpeg';
+                if($matches[2] === 'jpg') {
+                    $file = 'cover.jpeg';
+                }
+                elseif($matches[2] === 'jpeg') {
+                    $file = 'cover.jpg';
+                }
+                $this->setFile($file);
+                $exists = Storage::disk($this->getDisks())->exists($this->getRelativeFilePath());
+            }
+
+        }
+        if(!$exists) {
+            dd($this->getRelativeFilePath());
+        }*/
         if ($exists) {
             $this->mimeType = Storage::disk($this->getDisks())->mimeType($this->getRelativeFilePath());
 
             $size = Storage::disk($this->getDisks())->size($this->getRelativeFilePath());
             $this->size['bytes'] = $size;
             $this->size['units'] = $this->bytes2units($size);
+
+            $lastModified = Storage::disk($this->getDisks())->lastModified($this->getRelativeFilePath());
+            $d = new \DateTime();
+            $d->setTimestamp($lastModified);
+            $this->lastModified['timestamp'] = $d->getTimestamp();
+            $this->lastModified['datetime'] = $d->format('c');
 
             /**
              * $pattern = "/(.*?)\.(.*?)$/i"
@@ -115,7 +154,6 @@ class PathFile
             $pattern .= '(.*?)';
             $pattern .= '$/i';
             preg_match($pattern, $this->getFile(), $matches);
-            // dd($matches);
             if (!empty($matches)) {
                 $this->extensions = $matches[2];
             }
@@ -184,6 +222,22 @@ class PathFile
     }
 
     /**
+     * @return array
+     */
+    public function getLastModified():array
+    {
+        return $this->lastModified;
+    }
+
+    /**
+     * @param  array  $lastModified
+     */
+    public function setLastModified(array $lastModified):void
+    {
+        $this->lastModified = $lastModified;
+    }
+
+    /**
      * @param  float  $bytes
      *
      * @return string
@@ -248,6 +302,7 @@ class PathFile
             'extensions'       => $this->getExtensions(),
             'mimeType'         => $this->getMimeType(),
             'size'             => $this->getSize(),
+            'LastModified'     => $this->getLastModified(),
         ];
     }
 }

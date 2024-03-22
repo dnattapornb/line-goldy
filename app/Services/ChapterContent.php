@@ -9,6 +9,8 @@ class ChapterContent
     /** @var string */
     private $id;
     /** @var string */
+    private $subId;
+    /** @var string */
     private $title = '';
     /** @var string */
     private $name;
@@ -35,6 +37,22 @@ class ChapterContent
     public function setId(string $id):void
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSubId():string
+    {
+        return $this->subId;
+    }
+
+    /**
+     * @param  string  $subId
+     */
+    public function setSubId(string $subId):void
+    {
+        $this->subId = $subId;
     }
 
     /**
